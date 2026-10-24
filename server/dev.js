@@ -12,4 +12,7 @@ app.all('/api/health', health);
 app.use((error, req, res, next) => {
   res.status(error.status === 413 ? 413 : 400).json({ error: error.status === 413 ? 'The upload is too large.' : 'Invalid request body.' });
 });
-app.listen(3001, '127.0.0.1', () => console.log('Solluce API ready at http://127.0.0.1:3001'));
+app.listen(3001, '127.0.0.1', error => {
+  if (error) { console.error('Could not start the Solluce API on port 3001:', error.message); process.exitCode = 1; return; }
+  console.log('Solluce API ready at http://127.0.0.1:3001');
+});

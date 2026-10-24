@@ -87,7 +87,7 @@ test('city resolution only chooses California matches',async t=>{
 test('street address resolution uses Census and preserves matched coordinates',async t=>{
   t.mock.method(globalThis,'fetch',async url=>{
     assert.ok(String(url).startsWith('https://geocoding.geo.census.gov/'));
-    return {ok:true,json:async()=>({result:{addressMatches:[{matchedAddress:'1700 THOMAS ST, MANTECA, CA',coordinates:{y:37.79,x:-121.22}}]}})};
+    return {ok:true,json:async()=>({result:{addressMatches:[{matchedAddress:'1700 THOMAS ST, MANTECA, CA',addressComponents:{state:'CA'},coordinates:{y:37.79,x:-121.22}}]}})};
   });
   const match=await geocode('1700 Thomas St, Manteca, CA');assert.equal(match.precision,'address');assert.equal(match.latitude,37.79);
 });
@@ -116,4 +116,40 @@ test('health exposes capability flags without leaking API keys',t=>{
   mockEnv(t,'GEMINI_API_KEY','secret-placeholder');
   const response=mockResponse();healthHandler({method:'GET'},response);
   assert.equal(response.body.analysisConfigured,true);assert.equal(JSON.stringify(response.body).includes('secret-placeholder'),false);
+});
+test('syntactically valid but incomplete AI JSON cannot reach the renderer',async t=>{
+  mockEnv(t,'GEMINI_API_KEY','test-key');
+  t.mock.method(globalThis,'fetch',async()=>({ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:'{"summary":"Incomplete"}'}]}}]})}));
+  await assert.rejects(()=>analyzeCrop(validInput,null),e=>e.code==='INVALID_AI_RESPONSE');
+});
+test('successful guest analysis contains a real report identifier and excludes original photo data',async t=>{
+  mockEnv(t,'GEMINI_API_KEY','test-key');mockEnv(t,'TURNSTILE_SECRET_KEY','');
+  t.mock.method(globalThis,'fetch',async()=>({ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(sampleAnalysis.report)}]}}]})}));
+  const response=mockResponse();
+  await analyzeHandler({method:'POST',url:'/api/analyze',headers:{'x-real-ip':'test-success'},body:validInput},response);
+  assert.equal(response.statusCode,200);assert.equal(response.body.sample,false);assert.equal(response.body.photoCount,1);
+  assert.ok(response.body.id);assert.equal(response.body.photos,undefined);assert.equal(response.body.weather,null);
+  assert.ok(response.body.weatherWarning.includes('No confirmed location'));
+});
+test('weather failure is disclosed and does not prevent a photo-only report',async t=>{
+  mockEnv(t,'GEMINI_API_KEY','test-key');mockEnv(t,'TURNSTILE_SECRET_KEY','');
+  t.mock.method(globalThis,'fetch',async(url,options)=>{
+    if(String(url).includes('open-meteo'))throw new Error('Simulated outage');
+    const text=JSON.parse(JSON.parse(options.body).contents[0].parts[0].text);
+    assert.equal(text.weather.status,'unavailable');
+    return {ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(sampleAnalysis.report)}]}}]})};
+  });
+  const response=mockResponse();
+  await analyzeHandler({method:'POST',url:'/api/analyze',headers:{'x-real-ip':'test-no-weather'},body:{...validInput,location:sampleAnalysis.location}},response);
+  assert.equal(response.statusCode,200);assert.equal(response.body.weather,null);assert.ok(response.body.weatherWarning.includes('unavailable'));
+});
+test('configured challenge protection rejects unverified requests before calling Gemini',async t=>{
+  mockEnv(t,'GEMINI_API_KEY','test-key');mockEnv(t,'TURNSTILE_SECRET_KEY','test-turnstile');
+  t.mock.method(globalThis,'fetch',async url=>{
+    assert.ok(String(url).includes('challenges.cloudflare.com'));
+    return {json:async()=>({success:false})};
+  });
+  const response=mockResponse();
+  await analyzeHandler({method:'POST',url:'/api/analyze',headers:{'x-real-ip':'test-challenge'},body:validInput},response);
+  assert.equal(response.statusCode,403);assert.equal(response.body.code,'CHALLENGE_REQUIRED');
 });

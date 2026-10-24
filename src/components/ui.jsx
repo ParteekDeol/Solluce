@@ -18,7 +18,13 @@ export function SectionTitle({ title, subtitle, action }) { return <div classNam
 export function TextLink({ children, onClick }) { return <button className="text-link" onClick={onClick}>{children}<ArrowUpRight size={16}/></button>; }
 export function Modal({ title, children, onClose, wide = false }) {
   const ref = useRef(null);
-  useEffect(() => { const dialog = ref.current; dialog.showModal(); return () => { dialog.close(); }; }, []);
+  useEffect(() => {
+    const dialog = ref.current;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    dialog.showModal();
+    return () => { dialog.close(); document.body.style.overflow = previousOverflow; };
+  }, []);
   return <dialog ref={ref} className={'modal ' + (wide ? 'wide' : '')} aria-labelledby="modal-title" onCancel={e=>{e.preventDefault();onClose();}} onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
     <div className="modal-inner"><button className="icon-button modal-close" aria-label="Close dialog" onClick={onClose}><X size={20}/></button><h2 id="modal-title">{title}</h2>{children}</div>
   </dialog>;

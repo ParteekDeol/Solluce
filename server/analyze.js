@@ -14,10 +14,11 @@ export const SYSTEM_PROMPT = [
   'Do not prescribe exact irrigation run times without flow, application rate, measured root-zone moisture and crop stage. Distinguish forecast ET0 from actual crop water demand.',
   'Timeline entries are scheduled actions and checkpoints, not promises of recovery. Escalate rapid spread or severe decline to local UC Cooperative Extension or an agronomist.',
   'Use concise, plain English. Make recommendation titles short and useful. Reference the supplied crop, soil, irrigation and growth stage in your reasoning.',
+  'Keep the report focused: at most three suspected issues, three or four recommendations, and three timeline checkpoints. Each paragraph should be one or two short sentences.',
 ].join(' ');
 
 export async function analyzeCrop(input, weather) {
-  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
   if (!/^[a-zA-Z0-9._-]+$/.test(model)) throw new ApiError(503, 'The analysis model is not configured correctly.');
   const schema = z.toJSONSchema(ReportSchema);
   delete schema.$schema;
@@ -27,7 +28,10 @@ export async function analyzeCrop(input, weather) {
       { text: JSON.stringify({ field: input.field, quality: input.quality, concerns: input.concerns, weather: weather || { status: 'unavailable' } }) },
       ...input.photos.map(p => ({ inlineData: { mimeType: p.mimeType, data: p.data } })),
     ] }],
-    generationConfig: { responseMimeType: 'application/json', responseJsonSchema: schema, temperature: 0.25, maxOutputTokens: 10000 },
+    generationConfig: {
+      responseMimeType: 'application/json', responseJsonSchema: schema, temperature: 0.25, maxOutputTokens: 10000,
+      ...(/^gemini-[34]/.test(model) ? { thinkingConfig: { thinkingLevel: 'low' } } : {}),
+    },
   };
   let response;
   try {
@@ -38,7 +42,8 @@ export async function analyzeCrop(input, weather) {
   } catch { throw new ApiError(504, 'The crop analysis took too long. Please try again with fewer photos.', 'ANALYSIS_TIMEOUT'); }
   if (!response.ok) {
     if (response.status === 429) throw new ApiError(429, 'The AI service is busy or its quota has been reached. Please try again later.', 'AI_QUOTA');
-    throw new ApiError(502, 'Gemini could not complete the analysis. Check the server API key and model configuration, then try again.', 'AI_UNAVAILABLE');
+    if (response.status === 404) throw new ApiError(503, 'The AI service is not available with the current configuration. Please contact the Solluce team or try again later.', 'MODEL_UNAVAILABLE');
+    throw new ApiError(502, 'The AI service could not complete this crop check. Please try again in a moment.', 'AI_UNAVAILABLE');
   }
   try {
     const data = await response.json();

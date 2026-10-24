@@ -10,6 +10,7 @@ export async function geocode(address) {
     const data = await fetchJson(url, {}, 15000);
     const match = data.result?.addressMatches?.[0];
     if (!match) throw new ApiError(404, 'That street address could not be located. Try the full street, city and ZIP, or use your nearest city.');
+    if (match.addressComponents?.state !== 'CA') throw new ApiError(400, 'Solluce currently supports farms in California.');
     location = { name: match.matchedAddress, latitude: match.coordinates.y, longitude: match.coordinates.x, precision: 'address' };
   } else {
     const name = address.replace(/,\s*(CA|California|USA|United States).*$/i, '').trim();
