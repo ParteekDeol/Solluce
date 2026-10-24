@@ -69,7 +69,7 @@ For a public deployment with an active paid Gemini key, enable Vercel Firewall r
 - Client-side photo resizing and metadata removal before sending images to the server.
 - Live California city lookup through Open-Meteo; street address resolution through the U.S. Census Geocoder; direct latitude/longitude forecasts for farms without an address. Coordinate-only fields can be saved and reused.
 - Server-fetched temperature, rain, wind, sunlight, humidity, and FAO reference evapotranspiration.
-- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline.
+- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline. The analysis workspace now includes source-backed counts, a field snapshot, an interactive forecast snapshot, filterable actions with completion progress, expandable evidence, and selectable checkpoints.
 - Expandable recommendations and completion tracking.
 - An interactive seven-day water budget with colorful daily bars, daily selection, acreage, crop coefficient, and irrigation efficiency controls.
 - A forecast explorer with selectable temperature, rainfall, sunshine, and reference evapotranspiration charts. Selecting a day updates a clear reading panel.

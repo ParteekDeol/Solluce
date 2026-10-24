@@ -1,0 +1,17 @@
+import { useState } from 'react';
+import { CloudRain, Sun, Thermometer } from 'lucide-react';
+import { formatDate } from '../ui';
+
+export default function WeatherInsight({weather}) {
+  const [selected,setSelected]=useState(0);
+  if (!weather?.days?.length) return <div className="analysis-weather-empty"><CloudRain size={23}/><p>No local forecast was included in this check. You can add one in the water planner.</p></div>;
+  const days=weather.days.slice(0,7);
+  const current=days[selected]||days[0];
+  const rainValues=days.map(day=>day.precipitation).filter(Number.isFinite);
+  const highValues=days.map(day=>day.high).filter(Number.isFinite);
+  const rainTotal=rainValues.length===days.length?rainValues.reduce((sum,value)=>sum+value,0).toFixed(1):'—';
+  const warmest=highValues.length===days.length?Math.round(Math.max(...highValues))+'°F':'—';
+  const floor=highValues.length?Math.min(...highValues):0;
+  const range=Math.max(1,...highValues.map(value=>value-floor));
+  return <section className="analysis-card analysis-weather"><div className="analysis-weather-head"><div><p className="eyebrow">WEATHER IN YOUR REPORT</p><h2>Seven-day forecast snapshot</h2><p>{weather.location.name} · {weather.sample?'Illustrative forecast':'Fetched '+formatDate(weather.fetchedAt)}</p></div><span className="analysis-card-icon amber"><Sun size={24}/></span></div><div className="analysis-weather-stats"><div><Thermometer size={18}/><span><strong>{warmest}</strong>Warmest high</span></div><div><CloudRain size={18}/><span><strong>{rainTotal} mm</strong>Forecast rain</span></div></div><div className="analysis-weather-bars" role="group" aria-label="Choose a forecast day">{days.map((day,i)=><button key={day.date} className={i===selected?'selected':''} aria-pressed={i===selected} onClick={()=>setSelected(i)} aria-label={`${formatDate(day.date)}: ${Number.isFinite(day.high)?Math.round(day.high)+' degrees Fahrenheit':'temperature unavailable'} and ${Number.isFinite(day.precipitation)?day.precipitation.toFixed(1)+' millimeters rain':'rain unavailable'}`}><span>{formatDate(day.date,{weekday:'short'})}</span><span className="analysis-weather-track"><i style={{height:(Number.isFinite(day.high)?35+(day.high-floor)/range*55:16)+'%',background:day.precipitation>1?'#5b9eb6':'#91b385'}}/></span><strong>{Number.isFinite(day.high)?Math.round(day.high)+'°':'—'}</strong></button>)}</div><div className="analysis-weather-legend"><span><i/>Dry or light rain</span><span><i/>More than 1 mm rain</span></div><div className="analysis-weather-day"><strong>{formatDate(current.date,{weekday:'long',month:'short',day:'numeric'})}</strong><span>{Number.isFinite(current.high)?Math.round(current.high)+'°':'—'} high · {Number.isFinite(current.low)?Math.round(current.low)+'°':'—'} low</span><span>{Number.isFinite(current.precipitation)?current.precipitation.toFixed(1)+' mm rain':'Rain unavailable'} · {Number.isFinite(current.sunshineHours)?current.sunshineHours.toFixed(1)+' hr sun':'Sunshine unavailable'}</span></div><p className="analysis-weather-note">Forecast values are model estimates, not field measurements.</p></section>;
+}

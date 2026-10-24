@@ -9,7 +9,8 @@ import AuthModal from './components/AuthModal';
 import FieldModal from './components/FieldForm';
 import WeatherPanel from './components/WeatherPanel';
 import CropCheck from './components/CropCheck';
-import Report, { Recommendation } from './components/Report';
+import Recommendation from './components/Recommendation';
+import Report from './components/analysis/ReportV2';
 import WaterPlan from './components/WaterPlan';
 import ForecastExplorer from './components/ForecastExplorer';
 import About from './components/About';
@@ -142,7 +143,7 @@ export default function App() {
         {recordError&&<Notice tone="error">{recordError}</Notice>}
         {page==='overview'&&<Overview user={user} fields={openFields} analysis={current} weather={weather} onWeather={setWeather} onCheck={newCheck} onSample={openSample} onFields={()=>go('fields')} onReport={()=>current&&openReport(current)} onWater={()=>go('water')} onToggle={i=>toggle(i,current)} onAuth={()=>setAuthOpen(true)} />}
         {page==='check'&&<CropCheck key={checkKey} fields={fields} initialField={initialField} user={user} configured={configured} onComplete={completeCheck} onSample={openSample} onAuth={()=>setAuthOpen(true)}/>}
-        {page==='report'&&(analysis?<Report analysis={analysis} onBack={()=>go('overview')} onCheck={()=>newCheck(analysis.sample?null:analysis.field)} onWater={()=>openWater(analysis)} onToggle={toggle} user={user} onAuth={()=>setAuthOpen(true)} onSave={()=>persist(analysis)} saved={saved} saving={saving} saveError={saveError}/>:<EmptyState title="Your next insight starts with a photo." action={<button className="button primary" onClick={()=>newCheck()}>Start a crop check<ArrowRight size={16}/></button>}>Complete a crop check, or open a saved analysis from your history.</EmptyState>)}
+        {page==='report'&&(analysis?<Report key={analysis.id} analysis={analysis} onBack={()=>go('overview')} onCheck={()=>newCheck(analysis.sample?null:analysis.field)} onWater={()=>openWater(analysis)} onToggle={toggle} user={user} onAuth={()=>setAuthOpen(true)} onSave={()=>persist(analysis)} saved={saved} saving={saving} saveError={saveError}/>:<EmptyState title="Your next insight starts with a photo." action={<button className="button primary" onClick={()=>newCheck()}>Start a crop check<ArrowRight size={16}/></button>}>Complete a crop check, or open a saved analysis from your history.</EmptyState>)}
         {page==='water'&&<WaterPlan key={activeField.name} weather={weather} field={activeField} onWeather={setWeather}/>}
         {page==='fields'&&<Fields user={user} fields={fields} loading={recordsLoading} onAuth={()=>setAuthOpen(true)} onNew={()=>setFieldModal({})} onEdit={f=>setFieldModal(f)} onDelete={setDeleteTarget} onCheck={newCheck}/>}
         {page==='history'&&<HistoryPage user={user} analyses={analyses} guestAnalysis={analysis} loading={recordsLoading} onAuth={()=>setAuthOpen(true)} onOpen={openReport} onCheck={()=>newCheck()} onSample={openSample}/>}
