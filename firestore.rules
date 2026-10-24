@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+    match /users/{uid}/fields/{fieldId} {
+      allow read, delete: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['id','name','crop','soil','irrigation','stage','acres','address','sample','createdAt'])
+        && request.resource.data.id == fieldId
+        && request.resource.data.name is string && request.resource.data.name.size() <= 80
+        && request.resource.data.acres is number && request.resource.data.acres > 0 && request.resource.data.acres <= 10000
+        && request.resource.data.address is string && request.resource.data.address.size() <= 200
+        && request.resource.data.crop is string && request.resource.data.soil is string
+        && request.resource.data.irrigation is string && request.resource.data.stage is string
+        && request.resource.data.sample == false;
+    }
+    match /users/{uid}/analyses/{analysisId} {
+      allow read, delete: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['id','createdAt','sample','field','quality','concerns','location','photoCount','report','model','weather','weatherWarning','completed'])
+        && request.resource.data.id == analysisId
+        && request.resource.data.sample == false
+        && request.resource.data.report is map
+        && request.resource.data.field is map
+        && request.resource.data.completed is list
+        && request.resource.data.completed.size() <= 6;
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['completed'])
+        && request.resource.data.completed is list && request.resource.data.completed.size() <= 6;
+    }
+  }
+}
