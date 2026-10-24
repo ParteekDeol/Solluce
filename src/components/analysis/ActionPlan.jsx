@@ -8,7 +8,7 @@ const priorityName={today:'Do today',this_week:'This week',monitor:'Keep watchin
 function ActionCard({item,index,completed,onToggle}) {
   const [open,setOpen]=useState(index===0);
   const Icon=categoryIcon[item.category]||Leaf;
-  return <article className={'analysis-action '+item.category+(completed?' completed':'')}>
+  return <article id={index===0?'analysis-first-action':undefined} className={'analysis-action '+item.category+(completed?' completed':'')}>
     <button className="analysis-action-check" aria-label={(completed?'Mark incomplete: ':'Mark complete: ')+item.title} aria-pressed={completed} onClick={onToggle}>{completed?<Check size={19}/>:<span/>}</button>
     <div className="analysis-action-body"><div className="analysis-action-top"><span className="analysis-category"><Icon size={15}/>{categoryName[item.category]}</span><span className={'analysis-priority '+item.priority}>{priorityName[item.priority]}</span></div><button className="analysis-action-title" aria-expanded={open} onClick={()=>setOpen(!open)}><span>{item.title}</span><ChevronDown size={19}/></button>{open&&<div className="analysis-action-detail"><p>{item.action}</p><div><strong>Why this step matters</strong><p>{item.why}</p></div></div>}</div>
   </article>;

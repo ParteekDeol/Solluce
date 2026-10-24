@@ -11,9 +11,17 @@ export async function request(path, options = {}) {
   return data;
 }
 export async function preparePhoto(file) {
-  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Choose a JPEG, PNG or WebP photo. Convert HEIC photos to JPEG first.');
+  const heic = /\.(heic|heif)$/i.test(file.name) || ['image/heic','image/heif'].includes(file.type);
+  if (!heic && !['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Choose a JPEG, PNG, WebP or HEIC photo.');
   if (file.size > 12 * 1024 * 1024) throw new Error('Each photo must be smaller than 12 MB.');
-  const url = URL.createObjectURL(file);
+  let source = file;
+  if (heic) {
+    try {
+      const { heicTo } = await import('heic-to');
+      source = await heicTo({ blob: file, type: 'image/jpeg', quality: 0.88 });
+    } catch { throw new Error('That HEIC photo could not be converted. Try another photo or export it as JPEG.'); }
+  }
+  const url = URL.createObjectURL(source);
   try {
     const image = new Image();
     image.src = url;
@@ -31,6 +39,6 @@ export async function preparePhoto(file) {
     return { name: file.name, preview, data: preview.split(',')[1], mimeType: 'image/jpeg' };
   } catch (error) {
     if (error.message.includes('too large')) throw error;
-    throw new Error('That photo could not be opened. Try another JPEG or PNG.');
+    throw new Error('That photo could not be opened. Try another image.');
   } finally { URL.revokeObjectURL(url); }
 }

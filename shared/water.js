@@ -4,6 +4,10 @@ export const EFFICIENCIES = {
   'Furrow irrigation': 0.60, 'Flood irrigation': 0.55, 'Hand watering': 0.70, 'Rain-fed': null,
 };
 export const GALLONS_PER_ACRE_MM = 1069.066;
+export function irrigationRuntime(gallons, measuredGallonsPerHour) {
+  return Number.isFinite(gallons) && gallons >= 0 && Number.isFinite(measuredGallonsPerHour) && measuredGallonsPerHour > 0
+    ? gallons / measuredGallonsPerHour : null;
+}
 export function waterBudget(days, acres, coefficient, efficiency) {
   if (!days?.length || ![acres, coefficient, efficiency].every(Number.isFinite) || !(acres > 0 && acres <= 10000) || !(coefficient > 0) || !(efficiency > 0 && efficiency <= 1)) return null;
   if (days.some(d => !Number.isFinite(d.et0) || !Number.isFinite(d.precipitation) || d.et0 < 0 || d.precipitation < 0)) return null;

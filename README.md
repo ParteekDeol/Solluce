@@ -1,6 +1,6 @@
 # Solluce
 
-**Grow with clarity.** A mobile-friendly crop observation and water-planning app for Central Valley growers, built for SierraHacks 2026.
+A mobile-friendly crop observation and water-planning app for Central Valley growers, built for SierraHacks 2026.
 
 React + Vite on the frontend, Node.js Vercel Functions on the backend, Firebase Authentication and Firestore for accounts and saved records, Gemini for photo analysis, and Open-Meteo for weather.
 
@@ -47,7 +47,7 @@ npx firebase-tools deploy --only firestore --project YOUR_FIREBASE_PROJECT_ID
 
 Records are scoped to **users/{uid}/fields/{id}** and **users/{uid}/analyses/{id}**. Rules require the authenticated user to own the path. There are no public database reads or writes. Reports are user-owned planning notes, not independently certified records. Original photos are never persisted in Firestore.
 
-Guest access does not create a Firebase account or save field/report data to local storage. Guest state is kept in memory and disappears on reload. Signing in lets the user save the current real report explicitly.
+Guest access does not create a Firebase account or save field/report data to local storage. Guest reports and fields stay in memory. An unfinished crop-check form is kept only in the current tab's session storage so a refresh does not erase typed details; photos must be added again. Signing in lets the user save the current real report explicitly.
 
 ## Deploy through GitHub to Vercel
 
@@ -65,19 +65,20 @@ For a public deployment with an active paid Gemini key, enable Vercel Firewall r
 ## What is implemented
 
 - Responsive dashboard, mobile navigation, keyboard access, reduced-motion support, and photo capture from a mobile device.
-- A three-step crop check: up to three photos, field/soil/irrigation/stage details, crop condition, grower observations, and a location-confirmed review.
-- Client-side photo resizing and metadata removal before sending images to the server.
+- A three-step crop check: up to three photos, field/soil/irrigation/stage details, a named “Other” crop option, crop condition, grower observations, and a location-confirmed review. The form restores an unfinished draft after refresh.
+- Client-side photo resizing and metadata removal before sending images to the server. Mobile HEIC/HEIF photos are converted on the device before resizing.
 - Live California city lookup through Open-Meteo; street address resolution through the U.S. Census Geocoder; direct latitude/longitude forecasts for farms without an address. Coordinate-only fields can be saved and reused.
 - Server-fetched temperature, rain, wind, sunlight, humidity, and FAO reference evapotranspiration.
-- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline. The analysis workspace now includes source-backed counts, a field snapshot, an interactive forecast snapshot, filterable actions with completion progress, expandable evidence, and selectable checkpoints.
+- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline. The analysis workspace includes a prominent first action on mobile, a field snapshot, an interactive forecast snapshot, filterable actions with completion progress, expandable evidence, and selectable checkpoints.
 - Expandable recommendations and completion tracking.
-- An interactive seven-day water budget with colorful daily bars, daily selection, acreage, crop coefficient, and irrigation efficiency controls.
-- A forecast explorer with selectable temperature, rainfall, sunshine, and reference evapotranspiration charts. Selecting a day updates a clear reading panel.
+- An interactive seven-day water budget with colorful daily bars, daily selection, acreage, crop coefficient, irrigation efficiency, a root-zone moisture check, last-irrigation context, and a run-time calculation when the grower enters measured system flow.
+- A forecast explorer with selectable temperature, rainfall, sunshine, and reference evapotranspiration charts. Selecting a day updates a clear reading panel. Both weather and water charts offer numeric data tables.
+- A Settings menu with light/dark appearance, green/orange/purple accents, and an English/Spanish interface. New Gemini reports request prose in the selected language; existing reports remain in the language in which they were generated.
 - An About Us page describing the mission, product, and team: Parteek Deol, Jacob Fells, Xian Dimaandal, and Dhanesh Gopichandran.
 - Google and email/password sign-in, account creation, password reset, sign-out, private saved fields, editable field details, and searchable report history.
 - A deterministic, clearly labeled tomato-farm sample for demos before credentials or crop photos are ready.
 
-English/Spanish translation, printable reports, comparison photos, sensor integrations, and measured water-savings tracking are intentionally deferred.
+Printable reports, comparison photos, sensor integrations, and measured water-savings tracking are deferred.
 
 ## Water estimate
 
@@ -90,7 +91,7 @@ gross irrigation depth (mm) = max(0, crop demand − effective rain) ÷ assumed 
 gallons = gross depth × acres × 1,069.066
 ~~~
 
-The default coefficient (0.85), efficiencies, and effective-rain fraction are explicit starting assumptions, not measurements or a validated crop-specific schedule. This simple model does not track soil-water storage between days, root depth, runoff, leaching, or actual emitter flow. No automatic run times, pesticide rates, or guaranteed recovery/savings are presented.
+The default coefficient (0.85), efficiencies, and effective-rain fraction are explicit starting assumptions, not measurements or a validated crop-specific schedule. This simple model does not track soil-water storage between days, root depth, runoff, or leaching. A run-time estimate appears only after the grower enters measured whole-area flow; the grower must verify that flow and the area served. No pesticide rates or guaranteed recovery/savings are presented.
 
 Sources: [Open-Meteo forecast documentation](https://open-meteo.com/en/docs), [Census Geocoder](https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html), [FAO Paper 56](https://www.fao.org/4/x0490e/x0490e00.htm), [UC Cooperative Extension](https://ucanr.edu/sites/ucanr/County_Offices/).
 

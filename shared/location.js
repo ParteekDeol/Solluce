@@ -2,6 +2,10 @@ export function hasCoordinates(value) {
   return Number.isFinite(value?.latitude) && Number.isFinite(value?.longitude);
 }
 
+export function cropLabel(field) {
+  return field?.crop === 'Other' ? field.customCrop || 'Other' : field?.crop || '';
+}
+
 export function locationLabel(value) {
   return hasCoordinates(value)
     ? `${value.latitude.toFixed(4)}, ${value.longitude.toFixed(4)}`

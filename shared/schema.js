@@ -7,6 +7,7 @@ export const STAGES = ['Seedling / establishment', 'Vegetative growth', 'Floweri
 export const FieldSchema = z.object({
   name: z.string().trim().min(2).max(80),
   crop: z.enum(CROPS),
+  customCrop: z.string().trim().max(80).optional(),
   soil: z.enum(SOILS),
   irrigation: z.enum(IRRIGATION),
   stage: z.enum(STAGES),
@@ -17,6 +18,8 @@ export const FieldSchema = z.object({
 }).refine(field => (field.latitude === undefined) === (field.longitude === undefined)
   && (field.address.length >= 2 || field.latitude !== undefined), {
   message: 'Enter a California address or both latitude and longitude.',
+}).refine(field => field.crop !== 'Other' || (field.customCrop?.trim().length >= 2), {
+  message: 'Enter the crop name when Other is selected.', path: ['customCrop'],
 });
 export const LocationSchema = z.object({
   name: z.string().max(250),
@@ -27,6 +30,7 @@ export const LocationSchema = z.object({
 export const AnalyzeSchema = z.object({
   field: FieldSchema,
   quality: z.enum(['Looking healthy', 'Some concerns', 'Needs attention', 'Severe decline']),
+  language: z.enum(['en', 'es']).default('en'),
   concerns: z.string().trim().min(10).max(2000),
   photos: z.array(z.object({
     mimeType: z.enum(['image/jpeg', 'image/png', 'image/webp']),

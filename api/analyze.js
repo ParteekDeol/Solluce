@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const result = await analyzeCrop(input, weather);
     res.status(200).json({
       id: crypto.randomUUID(), createdAt: new Date().toISOString(), sample: false,
-      field: input.field, quality: input.quality, concerns: input.concerns,
+      field: input.field, quality: input.quality, concerns: input.concerns, language: input.language,
       location: input.location, photoCount: input.photos.length,
       ...result, weather, weatherWarning, completed: [],
     });

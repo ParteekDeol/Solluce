@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { CloudRain, Droplets, Sun, Thermometer } from 'lucide-react';
+import { CloudRain, Droplets, Sun, Thermometer, Table2 } from 'lucide-react';
 import { formatDate } from './ui';
 
 const metrics = [
@@ -14,6 +14,7 @@ const number=value=>Number.isFinite(value)?value.toFixed(1):'—';
 export default function ForecastExplorer({weather, compact=false}) {
   const [metric,setMetric]=useState('temperature');
   const [selected,setSelected]=useState(0);
+  const [showTable,setShowTable]=useState(false);
   const chartRef=useRef(null);
   const days=weather?.days?.slice(0,7) || [];
   if (!days.length) return null;
@@ -53,5 +54,7 @@ export default function ForecastExplorer({weather, compact=false}) {
     <div className="forecast-day-buttons" role="group" aria-label="Choose forecast day">{days.map((day,i)=><button key={day.date} className={i===selected?'selected':''} aria-pressed={i===selected} onClick={()=>selectDay(i)}>{formatDate(day.date,{weekday:'short'})}<strong>{metric==='temperature'?`${Math.round(day.high)}°`:number(highValue(day,metric))}</strong></button>)}</div>
     <div className="forecast-selected"><div><span>SELECTED DAY</span><strong>{formatDate(active.date,{weekday:'long',month:'short',day:'numeric'})}</strong></div><div><span>{option.label.toUpperCase()}</span><strong>{metric==='temperature'?`${number(active.high)}° / ${number(active.low)}°`:`${number(highValue(active,metric))} ${option.unit}`}</strong></div><div><span>RAIN CHANCE</span><strong>{Math.round(active.rainChance ?? 0)}%</strong></div><div><span>FORECAST RAIN</span><strong>{number(active.precipitation)} mm</strong></div></div>
     <p className="forecast-footnote">{metric==='evaporation'?'Water demand shows reference evapotranspiration (ET₀), not a field-specific irrigation order.':metric==='rain'?'Rainfall is a forecast total; the amount that reaches roots can differ.':metric==='sunshine'?'Sunshine is the forecast duration of direct sunlight.':'High and low air temperatures are daily model forecasts.'}</p>
+    <button className="data-table-toggle" aria-expanded={showTable} onClick={()=>setShowTable(!showTable)}><Table2 size={17}/>{showTable?'Hide data table':'Show data table'}</button>
+    {showTable&&<div className="data-table-scroll"><table className="data-table"><caption>Seven-day forecast for {weather.location.name}. Values are model estimates.</caption><thead><tr><th scope="col">Date</th><th scope="col">High (°F)</th><th scope="col">Low (°F)</th><th scope="col">Rain (mm)</th><th scope="col">Sun (hr)</th><th scope="col">ET₀ (mm)</th></tr></thead><tbody>{days.map(day=><tr key={day.date}><th scope="row">{formatDate(day.date,{weekday:'short',month:'short',day:'numeric'})}</th><td>{number(day.high)}</td><td>{number(day.low)}</td><td>{number(day.precipitation)}</td><td>{number(day.sunshineHours)}</td><td>{number(day.et0)}</td></tr>)}</tbody></table></div>}
   </section>;
 }

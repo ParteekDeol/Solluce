@@ -13,7 +13,7 @@ export const SYSTEM_PROMPT = [
   'Do not fabricate tests, measurements, pest sightings, yield increases, water savings or farm maps. Only use weather supplied by the server, and explicitly acknowledge when it is unavailable.',
   'Do not prescribe exact irrigation run times without flow, application rate, measured root-zone moisture and crop stage. Distinguish forecast ET0 from actual crop water demand.',
   'Timeline entries are scheduled actions and checkpoints, not promises of recovery. Escalate rapid spread or severe decline to local UC Cooperative Extension or an agronomist.',
-  'Use concise, plain English. Make recommendation titles short and useful. Reference the supplied crop, soil, irrigation and growth stage in your reasoning.',
+  'Use concise, plain language. Write all user-facing report text in Spanish when language is es, otherwise English. Keep schema enum values in English. When crop is Other, use customCrop as the actual crop name. Make recommendation titles short and useful. Reference the supplied crop, soil, irrigation and growth stage in your reasoning.',
   'Keep the report focused: at most three suspected issues, three or four recommendations, and three timeline checkpoints. Each paragraph should be one or two short sentences.',
 ].join(' ');
 
@@ -25,7 +25,7 @@ export async function analyzeCrop(input, weather) {
   const body = {
     systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
     contents: [{ role: 'user', parts: [
-      { text: JSON.stringify({ field: input.field, quality: input.quality, concerns: input.concerns, weather: weather || { status: 'unavailable' } }) },
+      { text: JSON.stringify({ field: input.field, quality: input.quality, concerns: input.concerns, language: input.language, weather: weather || { status: 'unavailable' } }) },
       ...input.photos.map(p => ({ inlineData: { mimeType: p.mimeType, data: p.data } })),
     ] }],
     generationConfig: {

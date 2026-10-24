@@ -29,5 +29,5 @@ export function Modal({ title, children, onClose, wide = false }) {
     <div className="modal-inner"><button className="icon-button modal-close" aria-label="Close dialog" onClick={onClose}><X size={20}/></button><h2 id="modal-title">{title}</h2>{children}</div>
   </dialog>;
 }
-export function formatDate(value, options = { month: 'short', day: 'numeric' }) { return new Date(value.length === 10 ? value + 'T12:00:00' : value).toLocaleDateString('en-US', options); }
-export function formatNumber(number) { return Number.isFinite(number) ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(number) : '—'; }
+export function formatDate(value, options = { month: 'short', day: 'numeric' }) { return new Date(value.length === 10 ? value + 'T12:00:00' : value).toLocaleDateString(document.documentElement.lang === 'es' ? 'es-US' : 'en-US', options); }
+export function formatNumber(number) { return Number.isFinite(number) ? new Intl.NumberFormat(document.documentElement.lang === 'es' ? 'es-US' : 'en-US', { maximumFractionDigits: 0 }).format(number) : '—'; }

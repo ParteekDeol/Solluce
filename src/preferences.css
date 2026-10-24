@@ -1,0 +1,89 @@
+/* Appearance and accent preferences */
+:root{--accent:#344c3b;--accent-soft:#e8f0e3;--accent-strong:#243d2d}
+:root[data-accent=orange]{--accent:#a2572e;--accent-soft:#f8eadd;--accent-strong:#783c1d;--green:#a2572e;--green-dark:#783c1d}
+:root[data-accent=purple]{--accent:#73569f;--accent-soft:#efe9f8;--accent-strong:#56377e;--green:#73569f;--green-dark:#56377e}
+:root[data-accent=orange] :is(.nav-item.active,.analysis-tabs button.active){background:#a2572e;color:#fff}
+:root[data-accent=purple] :is(.nav-item.active,.analysis-tabs button.active){background:#73569f;color:#fff}
+:root[data-accent=orange] :is(.brand,.brand-dot,.text-link,.analysis-inline-link,.guide-link,.settings-link){color:#a2572e}
+:root[data-accent=purple] :is(.brand,.brand-dot,.text-link,.analysis-inline-link,.guide-link,.settings-link){color:#73569f}
+:root[data-accent=orange] .analysis-lead{background:radial-gradient(circle at 80% 12%,#c78a56,transparent 38%),linear-gradient(125deg,#693b2b,#99573a)}
+:root[data-accent=purple] .analysis-lead{background:radial-gradient(circle at 80% 12%,#a58bc5,transparent 38%),linear-gradient(125deg,#43345f,#715487)}
+:root[data-accent=orange] .about-hero{background:#693f30}
+:root[data-accent=purple] .about-hero{background:#43365c}
+:root[data-accent=orange] .forecast-day-buttons button.selected,:root[data-accent=orange] .location-tabs button.selected{background:#f8eadd;border-color:#d4a27b;color:#713c20}
+:root[data-accent=purple] .forecast-day-buttons button.selected,:root[data-accent=purple] .location-tabs button.selected{background:#efe9f8;border-color:#ad93ca;color:#533676}
+
+.settings-shortcut{width:42px;height:42px;border:1px solid var(--line);background:var(--accent-soft);color:var(--accent)}
+.settings-link{margin-top:3px}
+.settings-panel{display:grid;gap:22px;margin-top:14px}.settings-panel>p{font-size:14px;line-height:1.6;color:#687466}.settings-panel fieldset{border:0;padding:0;margin:0;min-width:0}.settings-panel legend{font-weight:750;font-size:15px;margin-bottom:11px}.settings-options{display:flex;flex-wrap:wrap;gap:9px}.settings-options button{display:inline-flex;align-items:center;gap:9px;min-height:46px;border:1px solid #dce4d7;border-radius:10px;background:#f8faf6;padding:10px 15px;font-size:14px;font-weight:650}.settings-options button.selected{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-strong);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 15%,transparent)}.color-dot{width:16px;height:16px;border-radius:50%;background:#467251}.color-dot.orange{background:#be7042}.color-dot.purple{background:#8765b4}
+.draft-notice{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin-bottom:18px;background:#eaf2e6;border:1px solid #d6e4d0;border-radius:10px;color:#3e6247;font-size:14px;line-height:1.5}.draft-notice button{border:0;background:none;text-decoration:underline;font-weight:750;white-space:nowrap}
+.analysis-first-cta{display:flex;align-items:center;gap:13px;min-height:65px;text-align:left;margin-top:22px;padding:11px 16px;border:1px solid #f9f6d1a8;border-radius:12px;background:#fffde9;color:#2c4835;box-shadow:0 8px 18px #12271822;max-width:min(100%,470px)}.analysis-first-cta>span{min-width:0;display:grid;gap:2px;flex:1}.analysis-first-cta small{font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:#6a6a40}.analysis-first-cta strong{font-size:15px;line-height:1.35;white-space:normal}.analysis-first-cta:hover{background:white;transform:translateY(-2px)}.analysis-mobile-action{display:none}
+#analysis-first-action{scroll-margin-top:105px}
+.data-table-toggle{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:9px 11px;border:1px solid #dce5da;background:#f3f7f0;color:#3e684d;border-radius:9px;font-size:13px;font-weight:750;min-height:42px}.data-table-scroll{max-width:100%;overflow-x:auto;margin-top:15px;border:1px solid #dfe7dd;border-radius:11px}.data-table{border-collapse:collapse;width:100%;min-width:560px;background:#fff;font-size:13px;font-variant-numeric:tabular-nums}.data-table caption{text-align:left;padding:13px 14px;font-size:12px;color:#657465;background:#f6f8f4}.data-table th,.data-table td{padding:11px 13px;border-top:1px solid #e9eee7;text-align:right;white-space:nowrap}.data-table th:first-child{text-align:left}.data-table thead th{background:#edf3eb;color:#415b46;font-weight:750}.data-table tbody tr:nth-child(even){background:#f8faf7}.water-field-check{display:grid;gap:15px;border-top:1px solid var(--line);padding-top:22px}.water-field-check .eyebrow{margin-bottom:1px}.water-field-check small{font-size:12px;line-height:1.55;color:#667566}.water-field-check input,.water-field-check select{min-height:44px}.runtime-estimate{display:flex;align-items:flex-start;gap:11px;margin-top:18px;padding:14px;border-radius:11px;background:#e8f2e5;color:#355d40}.runtime-estimate strong{font-size:15px}.runtime-estimate p{font-size:12px;line-height:1.5;margin-top:4px}
+
+/* Small mobile labels remain readable without changing chart scales. */
+@media(max-width:760px){
+  :is(.metric-card>div>span,.metric-card strong small,.recommendation-meta,.field-preview-info p,.field-preview-tags>span,.weather-details,.weather-mini span,.forecast-selected span,.forecast-day-buttons button,.analysis-metric p,.analysis-weather-day,.history-row small,.water-color-key,.chart-legend,.fine-print,.page-footer){font-size:12px!important;line-height:1.4}
+  :is(.chart-column>strong,.chart-column>span:last-child,.chart-value,.analysis-tabs button,.analysis-filters button,.analysis-page .eyebrow,.water-controls .eyebrow){font-size:12px!important}
+  :is(.analysis-lead-content>p:not(.eyebrow),.analysis-observations li,.analysis-card p,.day-advice p,.forecast-footnote,.account-gate>p:not(.eyebrow)){font-size:14px!important;line-height:1.6}
+  :is(.metric-card,.forecast-day-buttons button,.analysis-filters button,.chart-column,.icon-button,.round-arrow){min-height:44px}
+  .analysis-page{padding-bottom:86px}.analysis-mobile-action{position:fixed;display:flex;align-items:center;gap:12px;bottom:0;left:0;right:0;z-index:24;padding:11px 17px calc(11px + env(safe-area-inset-bottom));background:#fcfdf8;box-shadow:0 -6px 22px #1c302027;border-top:1px solid #dfe8d9}.analysis-mobile-action>div{min-width:0;flex:1;display:grid;gap:3px}.analysis-mobile-action small{font-size:11px;color:#607562;text-transform:uppercase;font-weight:800;letter-spacing:.7px}.analysis-mobile-action strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.analysis-mobile-action button{width:48px;height:48px;border:0;border-radius:11px;background:var(--accent);color:white;display:grid;place-items:center}
+  .draft-notice{align-items:flex-start;flex-direction:column}.draft-notice button{padding:4px 0}
+}
+
+/* Dark surfaces retain the status colors and photo appearance. */
+:root[data-mode=dark]{color:#e9eee6;background:#101a15;--cream:#101a15;--line:#34443a;--muted:#aebfaf}
+:root[data-mode=dark] :is(body,.app-shell,.main-shell,.main-content,.topbar,.page-footer){background:#101a15;color:#e9eee6}
+:root[data-mode=dark] .topbar{border-color:#34443a}
+:root[data-mode=dark] .sidebar{background:#17241c;border-color:#34443a}
+:root[data-mode=dark] :is(.panel,.metric-card,.field-card,.team-grid article,.about-features article,.analysis-card,.analysis-metric,.water-controls,.forecast-explorer,.modal-inner,.check-card,.forecast-panel,.history-row,.settings-options button,.location-entry input,.location-entry select){background:#1d2c23!important;border-color:#3a4c3e!important;color:#e9eee6!important}
+:root[data-mode=dark] :is(.weather-card,.account-gate,.empty-state,.valley-note,.grow-banner,.about-statement,.about-honesty,.analysis-tabs,.analysis-milestones,.water-summary,.field-preview-art,.field-card-cover,.calculation-note,.water-field-check,.draft-notice){background:#223329!important;border-color:#405545!important;color:#e5efe2!important}
+:root[data-mode=dark] :is(input,select,textarea){background:#15231b;color:#f0f5eb;border-color:#49604e}
+:root[data-mode=dark] input::placeholder,:root[data-mode=dark] textarea::placeholder{color:#a9bcab}
+:root[data-mode=dark] :is(h1,h2,h3,h4,strong,label,.page-heading,.section-title,.brand,.workspace-label,.account-button,.field-preview-info,.analysis-page,.analysis-tabs button,.nav-item,.settings-link){color:#edf4e9}
+:root[data-mode=dark] :is(p,small,.muted,.fine-print,.page-description,.section-title p,.weather-details,.weather-mini span,.field-preview-info p,.field-preview-tags span,.forecast-footnote,.forecast-selected span,.analysis-metric p,.analysis-card p,.analysis-observations li,.data-table caption,.water-field-check small,.settings-panel>p){color:#b9cbb9!important}
+:root[data-mode=dark] :is(.nav-item.active,.button.primary,.analysis-mobile-action button){background:var(--accent);color:white}
+:root[data-mode=dark] :is(.button.secondary,.button.ghost,.location-tabs button,.forecast-metrics button,.forecast-day-buttons button,.data-table-toggle,.analysis-tabs button.active,.settings-options button.selected){background:#2b4032;color:#e8f1e4;border-color:#547159}
+:root[data-mode=dark] :is(.notice,.draft-notice,.runtime-estimate,.analysis-evidence-note,.analysis-action-detail,.analysis-weather-day,.analysis-confidence-note,.day-advice,.forecast-selected,.weather-mini){background:#263a2c;color:#dcebdc;border-color:#436047}
+:root[data-mode=dark] :is(.forecast-svg,.data-table){background:#1d2c23;color:#e8f1e4}
+:root[data-mode=dark] .data-table caption,:root[data-mode=dark] .data-table thead th{background:#2a4030;color:#e8f1e4}
+:root[data-mode=dark] .data-table tbody tr:nth-child(even){background:#24362a}
+:root[data-mode=dark] .data-table th,:root[data-mode=dark] .data-table td,:root[data-mode=dark] .data-table-scroll{border-color:#3c5341}
+:root[data-mode=dark] :is(.analysis-mobile-action,.modal){background:#17241c;color:#edf4e9}
+:root[data-mode=dark] .farm-hero,:root[data-mode=dark] .about-hero,:root[data-mode=dark] .analysis-lead{color:#f9f9e9}
+:root[data-mode=dark] .analysis-first-cta{background:#eef2da;color:#263d2d}
+:root[data-mode=dark] .analysis-first-cta strong{color:#263d2d}
+:root[data-mode=dark] .forecast-gridline{stroke:#3d5243}
+:root[data-mode=dark] .forecast-axis{fill:#c0d0bf}
+:root[data-mode=dark] .analysis-page{--ink:#eaf2e7;--soft:#b8caba;--edge:#3a4c3e}
+:root[data-mode=dark] .analysis-lead .eyebrow,:root[data-mode=dark] .analysis-lead p,:root[data-mode=dark] .about-hero p,:root[data-mode=dark] .farm-hero p{color:#f0f4e8!important}
+
+/* Legible compact labels and controls in every mode. */
+.weather-top .eyebrow,.weather-top .badge,.field-art-label,.forecast-selected span,.metric-card>div>span{font-size:11px}
+.weather-details,.weather-mini span,.weather-footer,.field-preview-info p,.field-preview-tags>span,.recommendation-meta,.history-row small,.water-color-key,.breakdown-row span{font-size:12px}
+.forecast-day-buttons button,.forecast-selected strong,.field-card-irrigation,.analysis-metric p{font-size:13px}
+.recommendation-title,.recommendation-detail,.day-advice p,.water-controls label{font-size:14px}
+.settings-options button.selected{outline:2px solid var(--accent);outline-offset:1px}
+:root[data-mode=dark] .settings-options button.selected{background:color-mix(in srgb,var(--accent) 45%,#26342b);outline-color:color-mix(in srgb,var(--accent) 70%,white);color:#fff}
+:root[data-mode=dark] .weather-card :is(.eyebrow,p,button,span,strong){color:#e6f0e4!important}
+:root[data-mode=dark] .weather-card :is(svg,.weather-mini svg){color:#bfdbb4}
+:root[data-mode=dark] .weather-card .badge{background:#dfe9da!important;color:#314335!important}
+:root[data-mode=dark] .valley-note :is(p,span,svg){color:#dcebd8!important}
+:root[data-mode=dark] .data-table-toggle{color:#e6f1e4!important}
+:root[data-mode=dark] .analysis-first-cta small{color:#4f6248!important}
+:root[data-mode=dark] :is(.water-location,.location-entry,.location-confirmed,.review-summary,.review-details,.check-aside,.auth-options,.account-detail){background:#1d2c23!important;border-color:#3a4c3e!important;color:#e9eee6!important}
+:root[data-mode=dark] :is(.water-location,.location-entry,.location-confirmed) :is(label,small,span,p){color:#dbe9da!important}
+:root[data-mode=dark] .location-tabs button.selected{background:var(--accent)!important;color:#fff!important;border-color:var(--accent)!important}
+:root[data-mode=dark] .water-location input{background:#15231b!important;color:#f0f5eb!important;border-color:#49604e!important}
+:root[data-mode=dark] .water-location .button.secondary{background:#304b39!important;color:#fff!important}
+:root[data-mode=dark] :is(.water-summary h2,.water-summary p,.water-summary span,.water-controls h3,.water-controls label,.forecast-explorer h2,.forecast-explorer strong){color:#f0f4ea!important}
+:root[data-mode=dark] :is(.stepper,.step-footer,.dropzone,.review-tags span){background:#223329!important;border-color:#405545!important;color:#e8f2e6!important}
+:root[data-mode=dark] .dropzone.dragging{background:#31503b!important;border-color:#90b58d!important}
+:root[data-mode=dark] .stepper :is(p,span),:root[data-mode=dark] .step-footer>span,:root[data-mode=dark] .dropzone :is(h3,p,.fine-print){color:#e3efe1!important}
+:root[data-mode=dark] .stepper .active span{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important}
+:root[data-mode=dark] .stepper .complete span,:root[data-mode=dark] .upload-icon{background:#31503b!important;border-color:#547159!important;color:#e5f2df!important}
+:root[data-mode=dark] .stepper i{background:#49624c}
+:root[data-mode=dark] .upload-icon>span{background:#406748;color:#e8f3e2;border-color:#223329}
+:root[data-mode=dark] .privacy-note,:root[data-mode=dark] .privacy-note p{color:#c7d9c4!important}
+@media(max-width:760px){.stepper p,.step-footer>span,.dropzone .fine-print,.privacy-note p{font-size:12px!important}.dropzone p{font-size:14px!important}}
+@media(max-width:360px){.topbar-right>.badge{display:none}.topbar-right{margin-left:auto}.mobile-brand .brand{font-size:25px}}

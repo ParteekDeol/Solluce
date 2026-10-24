@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { waterBudget, GALLONS_PER_ACRE_MM } from '../shared/water.js';
+import { waterBudget, irrigationRuntime, GALLONS_PER_ACRE_MM } from '../shared/water.js';
 import { AnalyzeSchema, ReportSchema, isValidImage } from '../shared/schema.js';
 import { sampleAnalysis, sampleField } from '../src/lib/demo.js';
 import { analyzeCrop } from '../server/analyze.js';
 import { geocode, coordinatesLocation, forecast } from '../server/weather.js';
-import { locationLabel, weatherQuery } from '../shared/location.js';
+import { cropLabel, locationLabel, weatherQuery } from '../shared/location.js';
 import analyzeHandler from '../api/analyze.js';
 import healthHandler from '../api/health.js';
 
@@ -43,6 +43,12 @@ test('water estimate scales linearly with field size and crop coefficient withou
   const c=waterBudget([{et0:4,precipitation:0}],1,.4,.9);
   assert.equal(c.gallons,a.gallons/2);
 });
+test('estimated run time needs measured positive whole-area flow',()=>{
+  assert.equal(irrigationRuntime(9000,3000),3);
+  assert.equal(irrigationRuntime(9000,0),null);
+  assert.equal(irrigationRuntime(9000,Number.NaN),null);
+  assert.equal(irrigationRuntime(undefined,3000),null);
+});
 test('photo input validates type and byte signature',()=>{
   assert.equal(isValidImage(photo),true);
   assert.equal(isValidImage({...photo,mimeType:'image/png'}),false);
@@ -53,6 +59,12 @@ test('crop request accepts supported context and rejects missing photos, acreage
   for(const invalid of [{...validInput,photos:[]},{...validInput,field:{...sampleField,acres:-1}},{...validInput,concerns:'x'},{...validInput,location:{name:'NY',latitude:40,longitude:-74,precision:'city'}},{...validInput,photos:[{...photo,data:'invalid!base64'}]}]){
     assert.equal(AnalyzeSchema.safeParse(invalid).success,false);
   }
+});
+test('Other crop requires a specific name and preserves it for the report',()=>{
+  const field={...sampleField,crop:'Other',customCrop:'Bell peppers'};
+  assert.equal(AnalyzeSchema.safeParse({...validInput,field}).success,true);
+  assert.equal(cropLabel(field),'Bell peppers');
+  assert.equal(AnalyzeSchema.safeParse({...validInput,field:{...field,customCrop:''}}).success,false);
 });
 test('coordinate-only fields validate and produce a direct weather query',()=>{
   const coordinateField={...sampleField,address:'',latitude:37.7974,longitude:-121.216};
@@ -81,6 +93,19 @@ test('Gemini request contains images and validated output instructions; returned
     return {ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(sampleAnalysis.report)}]}}]})};
   });
   const result=await analyzeCrop(validInput,null);assert.equal(result.report.headline,sampleAnalysis.report.headline);
+});
+test('Spanish analysis passes language and custom crop to Gemini',async t=>{
+  mockEnv(t,'GEMINI_API_KEY','test-key');
+  const input=AnalyzeSchema.parse({...validInput,language:'es',field:{...sampleField,crop:'Other',customCrop:'Bell peppers'}});
+  t.mock.method(globalThis,'fetch',async(_url,options)=>{
+    const body=JSON.parse(options.body);
+    const context=JSON.parse(body.contents[0].parts[0].text);
+    assert.equal(context.language,'es');
+    assert.equal(context.field.customCrop,'Bell peppers');
+    assert.match(body.systemInstruction.parts[0].text,/Spanish/);
+    return {ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(sampleAnalysis.report)}]}}]})};
+  });
+  await analyzeCrop(input,null);
 });
 test('malformed and truncated Gemini responses fail rather than becoming fake reports',async t=>{
   mockEnv(t,'GEMINI_API_KEY','test-key');
