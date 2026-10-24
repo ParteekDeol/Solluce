@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CROPS = ['Tomatoes', 'Almonds', 'Grapes', 'Citrus', 'Pistachios', 'Walnuts', 'Peaches', 'Lettuce', 'Corn', 'Alfalfa', 'Other'];
 export const SOILS = ['Sandy loam', 'Loam', 'Clay loam', 'Sandy', 'Clay', 'Silt loam', 'Not sure'];
-export const IRRIGATION = ['Drip irrigation', 'Micro-sprinklers', 'Sprinklers', 'Furrow irrigation', 'Flood irrigation', 'Hand watering', 'Rain-fed'];
+export const IRRIGATION = ['Not sure', 'Drip irrigation', 'Micro-sprinklers', 'Sprinklers', 'Furrow irrigation', 'Flood irrigation', 'Hand watering', 'Rain-fed'];
 export const STAGES = ['Seedling / establishment', 'Vegetative growth', 'Flowering', 'Fruit development', 'Harvest', 'Post-harvest / dormant', 'Not sure'];
 export const FieldSchema = z.object({
   name: z.string().trim().min(2).max(80),

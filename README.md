@@ -64,15 +64,14 @@ For a public deployment with an active paid Gemini key, enable Vercel Firewall r
 
 ## What is implemented
 
-- Responsive dashboard, mobile navigation, keyboard access, reduced-motion support, and photo capture from a mobile device.
-- A three-step crop check: up to three photos, field/soil/irrigation/stage details, a named “Other” crop option, crop condition, grower observations, and a location-confirmed review. The form restores an unfinished draft after refresh.
+- A simplified dashboard with one primary crop-check action, a concise weather summary, and a link to the latest report. Mobile navigation, keyboard access, and reduced-motion support remain.
+- A three-step crop check: up to three photos, crop and location details, a named “Other” crop option, crop condition, and grower observations. Soil, irrigation, and growth-stage details are optional and collapsed by default; unknown values are represented as “Not sure” rather than guessed. The app looks up local weather automatically when the grower continues, and the form restores an unfinished draft after refresh.
 - Client-side photo resizing and metadata removal before sending images to the server. Mobile HEIC/HEIF photos are converted on the device before resizing.
 - Live California city lookup through Open-Meteo; street address resolution through the U.S. Census Geocoder; direct latitude/longitude forecasts for farms without an address. Coordinate-only fields can be saved and reused.
 - Server-fetched temperature, rain, wind, sunlight, humidity, and FAO reference evapotranspiration.
-- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline. The analysis workspace includes a prominent first action on mobile, a field snapshot, an interactive forecast snapshot, filterable actions with completion progress, expandable evidence, and selectable checkpoints.
+- Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline. Reports show the main takeaway and first three actions first; detailed findings, weather, timeline, and limitations open on demand.
 - Expandable recommendations and completion tracking.
-- An interactive seven-day water budget with colorful daily bars, daily selection, acreage, crop coefficient, irrigation efficiency, a root-zone moisture check, last-irrigation context, and a run-time calculation when the grower enters measured system flow.
-- A forecast explorer with selectable temperature, rainfall, sunshine, and reference evapotranspiration charts. Selecting a day updates a clear reading panel. Both weather and water charts offer numeric data tables.
+- A water planner with separate Water plan and Weather tabs. The plan has seven-day irrigation bars, day selection, acreage, and a root-zone moisture check; optional field measurements and calculation details stay expandable. The Weather tab shows current forecast temperature, humidity, wind, today's high and low, rain chance, sunshine, and interactive seven-day charts for temperature, rain, sunshine, and reference water demand.
 - A Settings menu with light/dark appearance, green/orange/purple accents, and an English/Spanish interface. New Gemini reports request prose in the selected language; existing reports remain in the language in which they were generated.
 - An About Us page describing the mission, product, and team: Parteek Deol, Jacob Fells, Xian Dimaandal, and Dhanesh Gopichandran.
 - Google and email/password sign-in, account creation, password reset, sign-out, private saved fields, editable field details, and searchable report history.

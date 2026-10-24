@@ -1,17 +1,19 @@
-import { ArrowRight, ArrowUpRight, Camera, CloudSun, Droplets, Leaf, ShieldCheck, Sprout } from 'lucide-react';
-import { Brand, PageHeading } from './ui';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { readPreferences } from '../lib/preferences';
 
 const team = ['Parteek Deol', 'Jacob Fells', 'Xian Dimaandal', 'Dhanesh Gopichandran'];
 
 export default function About({ onCheck, onSample }) {
-  return <>
-    <PageHeading title="About Solluce" description="Built for the growers who keep the Central Valley growing."/>
-    <section className="about-hero"><div className="about-hero-copy"><span className="about-overline">OUR MISSION</span><h2>Give every grower a clearer next step.</h2><p>When a crop looks stressed, the hard part is knowing what to inspect first. Solluce brings field observations, crop photos, and local weather into one practical plan that a grower can review and act on.</p><button className="button cream" onClick={onCheck}>Start a crop check<ArrowRight size={17}/></button></div><div className="about-hero-image"><img src="/images/valley.webp" alt="Sunlit crop rows in a Central Valley-inspired landscape"/></div></section>
-    <div className="about-statement"><span><Leaf size={24}/></span><div><p className="eyebrow">WHY WE BUILT IT</p><h2>Healthy farms and careful water use matter to the Valley.</h2><p>Central Valley farms face shifting weather, water pressure, and crop problems that can be difficult to identify from a quick glance. We want useful technology to help growers notice patterns, check plausible causes, and make more informed decisions in the field.</p></div></div>
-    <div className="about-section-heading"><p className="eyebrow">THE PRODUCT</p><h2>From observation to action.</h2><p>Solluce turns a crop check into a plan you can revisit.</p></div>
-    <div className="about-features"><article><span className="feature-icon terracotta"><Camera size={25}/></span><h3>See the signs</h3><p>Add leaf or crop photos and describe what you are seeing. Gemini offers possible causes with evidence and verification steps.</p></article><article><span className="feature-icon sky"><CloudSun size={25}/></span><h3>Use local context</h3><p>Look up weather by address, city, or coordinates. Explore seven days of temperature, rain, sunshine, and reference water demand.</p></article><article><span className="feature-icon olive"><Droplets size={25}/></span><h3>Plan the next move</h3><p>Review prioritized actions, a follow-up timeline, and an adjustable water estimate that shows its assumptions.</p></article></div>
-    <section className="about-team"><div className="about-section-heading"><p className="eyebrow">THE PEOPLE BEHIND SOLLUCE</p><h2>Meet the team.</h2><p>Built for SierraHacks 2026 by a four-person team focused on practical tools for Central Valley agriculture.</p></div><div className="team-grid">{team.map((name,index)=><article key={name}><span className={'team-mark team-'+index}>{name.split(' ').map(part=>part[0]).join('')}</span><h3>{name}</h3><p>Solluce team</p></article>)}</div></section>
-    <section className="about-honesty"><ShieldCheck size={31}/><div><h2>Designed to support judgment in the field.</h2><p>Photos cannot confirm a disease or measure soil moisture. Solluce separates visible observations from possible causes and shows what to verify next. Its water estimate is a planning aid; always check actual field conditions before irrigating.</p><div className="source-links"><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Open-Meteo weather<ArrowUpRight size={15}/></a><a href="https://ucanr.edu/sites/ucanr/County_Offices/" target="_blank" rel="noreferrer">Local UC Extension<ArrowUpRight size={15}/></a></div></div></section>
-    <div className="grow-banner"><Sprout size={27}/><div><h3>See the product in action.</h3><p>Explore an illustrative crop report, then try a check on your own field.</p></div><button className="text-link" onClick={onSample}>View sample report<ArrowRight size={16}/></button></div>
-  </>;
+  const spanish = readPreferences().language === 'es';
+  return <div className="simple-about">
+    <p className="simple-kicker">About Solluce</p>
+    <h1>Helpful answers for the people who grow our food.</h1>
+    <p className="simple-about-lead">Solluce helps Central Valley growers make sense of crop problems and plan their next step with local weather in mind.</p>
+    <img src="/images/valley.webp" alt="Crop rows in a Central Valley-inspired landscape"/>
+    <section><h2>Why we built it</h2><p>When leaves change color or plants wilt, it can be hard to know what to check first. Water is precious here, and guessing can waste time and resources. We built Solluce to turn a crop photo and a few field details into a practical plan.</p></section>
+    <section><h2>How it works</h2><ol><li><strong>Show us your crop.</strong> Add a photo and describe what you notice.</li><li><strong>Review the next step.</strong> Solluce suggests what to inspect and why.</li><li><strong>Follow up in the field.</strong> Check the evidence and use local weather to plan water.</li></ol><button className="button primary" onClick={onCheck}>Check my crops<ArrowRight size={17}/></button></section>
+    <section><h2>Our team</h2><p>{spanish ? 'Solluce fue creado para SierraHacks 2026 por ' : 'Solluce was built for SierraHacks 2026 by '}{team.join(', ')}.</p></section>
+    <section className="simple-about-safety"><ShieldCheck size={23}/><div><h2>Built to support your judgment</h2><p>A photo cannot confirm a diagnosis, and a forecast cannot measure soil moisture. Verify suspected problems before treating, and check actual field conditions before irrigating.</p><a href="https://ucanr.edu/sites/ucanr/County_Offices/" target="_blank" rel="noreferrer">Find your local UC Extension office ↗</a></div></section>
+    <button className="simple-link" onClick={onSample}>See an example report<ArrowRight size={17}/></button>
+  </div>;
 }
