@@ -4,7 +4,8 @@ import { waterBudget, GALLONS_PER_ACRE_MM } from '../shared/water.js';
 import { AnalyzeSchema, ReportSchema, isValidImage } from '../shared/schema.js';
 import { sampleAnalysis, sampleField } from '../src/lib/demo.js';
 import { analyzeCrop } from '../server/analyze.js';
-import { geocode, forecast } from '../server/weather.js';
+import { geocode, coordinatesLocation, forecast } from '../server/weather.js';
+import { locationLabel, weatherQuery } from '../shared/location.js';
 import analyzeHandler from '../api/analyze.js';
 import healthHandler from '../api/health.js';
 
@@ -52,6 +53,17 @@ test('crop request accepts supported context and rejects missing photos, acreage
   for(const invalid of [{...validInput,photos:[]},{...validInput,field:{...sampleField,acres:-1}},{...validInput,concerns:'x'},{...validInput,location:{name:'NY',latitude:40,longitude:-74,precision:'city'}},{...validInput,photos:[{...photo,data:'invalid!base64'}]}]){
     assert.equal(AnalyzeSchema.safeParse(invalid).success,false);
   }
+});
+test('coordinate-only fields validate and produce a direct weather query',()=>{
+  const coordinateField={...sampleField,address:'',latitude:37.7974,longitude:-121.216};
+  assert.equal(AnalyzeSchema.safeParse({...validInput,field:coordinateField}).success,true);
+  assert.equal(locationLabel(coordinateField),'37.7974, -121.2160');
+  assert.equal(weatherQuery(coordinateField),'latitude=37.7974&longitude=-121.216');
+  assert.equal(coordinatesLocation(37.7974,-121.216).precision,'coordinates');
+  for(const bad of [{...coordinateField,latitude:undefined},{...coordinateField,longitude:-100},{...coordinateField,latitude:100}]){
+    assert.equal(AnalyzeSchema.safeParse({...validInput,field:bad}).success,false);
+  }
+  assert.throws(()=>coordinatesLocation(100,-121.216),error=>error.status===400);
 });
 test('sample report obeys the same rendering contract as live reports',()=>{
   assert.equal(ReportSchema.safeParse(sampleAnalysis.report).success,true);

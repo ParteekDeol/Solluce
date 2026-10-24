@@ -25,6 +25,17 @@ export async function geocode(address) {
   return location;
 }
 
+export function coordinatesLocation(latitude, longitude) {
+  const location = {
+    name: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
+    latitude, longitude, precision: 'coordinates',
+  };
+  if (!LocationSchema.safeParse(location).success) {
+    throw new ApiError(400, 'Enter valid California coordinates (latitude 32–42.1, longitude −124.6 to −114).');
+  }
+  return location;
+}
+
 export async function forecast(location, timeout = 12000) {
   const url = new URL('https://api.open-meteo.com/v1/forecast');
   url.search = new URLSearchParams({

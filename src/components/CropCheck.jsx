@@ -3,6 +3,7 @@ import { Camera, Upload, X, ArrowRight, ArrowLeft, Leaf, MapPin, Check, ScanLine
 import { PageHeading, Badge, Notice, Spinner, WeatherIcon } from './ui';
 import { FieldInputs, blankField } from './FieldForm';
 import { FieldSchema } from '../../shared/schema';
+import { hasCoordinates, locationKey, locationLabel, weatherQuery } from '../../shared/location';
 import { request, preparePhoto } from '../lib/api';
 
 function Challenge({ onToken, resetKey }) {
@@ -48,7 +49,7 @@ export default function CropCheck({ fields, initialField, user, configured, onCo
   useEffect(() => { live.current = true; return () => { live.current = false; }; }, []);
   useEffect(() => { if (error && !busy) errorRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, [error, busy]);
   useEffect(() => { if (!busy) return; const id = setInterval(() => setProgress(p => Math.min(p + 1, 3)), 7000); return () => clearInterval(id); }, [busy]);
-  const confirmed = weather && confirmedAddress === field.address;
+  const confirmed = weather && confirmedAddress === locationKey(field);
   async function addPhotos(files) {
     setError('');
     if (photos.length + files.length > 3) { setError('Choose up to 3 photos per check.'); return; }
@@ -59,14 +60,14 @@ export default function CropCheck({ fields, initialField, user, configured, onCo
   }
   async function locate() {
     setLocating(true); setError('');
-    try { const result = await request('/api/weather?address=' + encodeURIComponent(field.address)); setWeather(result); setConfirmedAddress(field.address); setSkipWeather(false); }
+    try { const result = await request('/api/weather?' + weatherQuery(field)); setWeather(result); setConfirmedAddress(locationKey(field)); setSkipWeather(false); }
     catch (err) { setError(err.message); } finally { setLocating(false); }
   }
   function next(e) {
     e.preventDefault(); setError('');
     if (step === 0 && !photos.length) { setError('Add at least one crop photo to continue, or explore the sample report.'); return; }
     if (step === 1) {
-      if (!FieldSchema.safeParse(field).success) { setError('Please complete your field details with a valid acreage.'); return; }
+      if (!FieldSchema.safeParse(field).success) { setError('Please complete your field details, location and valid acreage.'); return; }
       if (concerns.trim().length < 10) { setError('Tell us a little more about what you are seeing (at least 10 characters).'); return; }
       if (!confirmed && !skipWeather) { setError('Find and confirm your forecast, or choose to continue without weather.'); return; }
     }
@@ -109,12 +110,12 @@ export default function CropCheck({ fields, initialField, user, configured, onCo
           </>}
           {step === 1 && <>
             {fields.length>0 && <label className="saved-field-select">Start with a saved field<select value={fieldId} onChange={e=>{const selected=fields.find(f=>f.id===e.target.value);setFieldId(e.target.value);setField(selected || {...blankField});setWeather(null);}}><option value="">Enter a new field</option>{fields.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select></label>}
-            <FieldInputs field={field} setField={setField}/>
-            <div className="location-check"><button type="button" className="button secondary" disabled={locating || field.address.length<2} onClick={locate}>{locating ? <Spinner label="Finding forecast…"/> : <><MapPin size={16}/>{confirmed ? 'Refresh local weather' : 'Find local weather'}</>}</button>{confirmed && <div className="location-confirmed"><CheckCircle2 size={18}/><span><strong>{weather.location.name}</strong><small>{weather.location.precision==='city'?'City center forecast':'Address matched'} · {Math.round(weather.current.temperature)}°F · 7-day forecast ready</small></span></div>}</div>
+            <FieldInputs key={fieldId || 'new'} field={field} setField={setField}/>
+            <div className="location-check"><button type="button" className="button secondary" disabled={locating || !(field.address?.trim().length>=2 || hasCoordinates(field))} onClick={locate}>{locating ? <Spinner label="Finding forecast…"/> : <><MapPin size={16}/>{confirmed ? 'Refresh local weather' : 'Find local weather'}</>}</button>{confirmed && <div className="location-confirmed"><CheckCircle2 size={18}/><span><strong>{weather.location.name}</strong><small>{weather.location.precision==='city'?'City center forecast':weather.location.precision==='coordinates'?'Coordinate forecast':'Address matched'} · {Math.round(weather.current.temperature)}°F · 7-day forecast ready</small></span></div>}</div>
             {!confirmed && <label className="checkbox-label"><input type="checkbox" checked={skipWeather} onChange={e=>setSkipWeather(e.target.checked)}/>Continue without weather if my location cannot be resolved</label>}
             <div className="form-grid condition-fields"><label>How are your crops looking?<select value={quality} onChange={e=>setQuality(e.target.value)}>{['Looking healthy','Some concerns','Needs attention','Severe decline'].map(q=><option key={q}>{q}</option>)}</select></label><label className="span-two">What have you noticed?<textarea required minLength={10} maxLength={2000} rows={4} value={concerns} onChange={e=>setConcerns(e.target.value)} placeholder="e.g. Lower leaves started yellowing last week. A few plants wilt in the afternoon. We irrigate for 30 minutes each morning."/></label></div>
           </>}
-          {step === 2 && <><div className="review-summary"><div className="review-photos">{photos.map((p,i)=><img key={i} src={p.preview} alt={'Crop photo '+(i+1)}/>)}</div><div><Badge>{field.crop}</Badge><h3>{field.name}</h3><p><MapPin size={14}/>{field.address}</p><div className="review-tags"><span>{field.acres} acres</span><span>{field.soil}</span><span>{field.irrigation}</span></div></div></div><dl className="review-details"><div><dt>Growth stage</dt><dd>{field.stage}</dd></div><div><dt>Current condition</dt><dd>{quality}</dd></div><div><dt>Your observations</dt><dd>{concerns}</dd></div><div><dt>Weather context</dt><dd>{confirmed ? weather.location.name + ' · live 7-day forecast' : 'Not included'}</dd></div></dl><Notice>AI can suggest possible causes, but a photograph cannot confirm a diagnosis. Your report will include what to check next.</Notice>{!user && <p className="guest-reminder">Your result stays in this session. <button type="button" onClick={onAuth}>Sign in</button> to keep it in your history.</p>}<Challenge onToken={setToken} resetKey={challengeReset}/></>}
+          {step === 2 && <><div className="review-summary"><div className="review-photos">{photos.map((p,i)=><img key={i} src={p.preview} alt={'Crop photo '+(i+1)}/>)}</div><div><Badge>{field.crop}</Badge><h3>{field.name}</h3><p><MapPin size={14}/>{locationLabel(field)}</p><div className="review-tags"><span>{field.acres} acres</span><span>{field.soil}</span><span>{field.irrigation}</span></div></div></div><dl className="review-details"><div><dt>Growth stage</dt><dd>{field.stage}</dd></div><div><dt>Current condition</dt><dd>{quality}</dd></div><div><dt>Your observations</dt><dd>{concerns}</dd></div><div><dt>Weather context</dt><dd>{confirmed ? weather.location.name + ' · live 7-day forecast' : 'Not included'}</dd></div></dl><Notice>AI can suggest possible causes, but a photograph cannot confirm a diagnosis. Your report will include what to check next.</Notice>{!user && <p className="guest-reminder">Your result stays in this session. <button type="button" onClick={onAuth}>Sign in</button> to keep it in your history.</p>}<Challenge onToken={setToken} resetKey={challengeReset}/></>}
           {error && <div ref={errorRef} className="form-error"><Notice tone="error">{error}</Notice></div>}
         </div>
         <div className="step-footer"><button className="button ghost" type="button" disabled={step===0} onClick={()=>{setStep(step-1);setError('');}}><ArrowLeft size={16}/>Back</button><span>Step {step+1} of 3</span><button className="button primary" disabled={uploading || locating || (step===2 && import.meta.env.VITE_TURNSTILE_SITE_KEY && !token)}>{step===2 ? <><Sparkles size={17}/>Analyze my crops</> : <>Continue<ArrowRight size={17}/></>}</button></div>

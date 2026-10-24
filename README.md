@@ -67,11 +67,13 @@ For a public deployment with an active paid Gemini key, enable Vercel Firewall r
 - Responsive dashboard, mobile navigation, keyboard access, reduced-motion support, and photo capture from a mobile device.
 - A three-step crop check: up to three photos, field/soil/irrigation/stage details, crop condition, grower observations, and a location-confirmed review.
 - Client-side photo resizing and metadata removal before sending images to the server.
-- Live California city lookup through Open-Meteo; street address resolution through the U.S. Census Geocoder.
+- Live California city lookup through Open-Meteo; street address resolution through the U.S. Census Geocoder; direct latitude/longitude forecasts for farms without an address. Coordinate-only fields can be saved and reused.
 - Server-fetched temperature, rain, wind, sunlight, humidity, and FAO reference evapotranspiration.
 - Gemini reports with observations, possible causes, evidence strength, alternatives, verification steps, prioritized actions, and a follow-up timeline.
 - Expandable recommendations and completion tracking.
-- An interactive seven-day water budget with daily selection, acreage, crop coefficient, and irrigation efficiency controls.
+- An interactive seven-day water budget with colorful daily bars, daily selection, acreage, crop coefficient, and irrigation efficiency controls.
+- A forecast explorer with selectable temperature, rainfall, sunshine, and reference evapotranspiration charts. Selecting a day updates a clear reading panel.
+- An About Us page describing the mission, product, and team: Parteek Deol, Jacob Fells, Xian Dimaandal, and Dhanesh Gopichandran.
 - Google and email/password sign-in, account creation, password reset, sign-out, private saved fields, editable field details, and searchable report history.
 - A deterministic, clearly labeled tomato-farm sample for demos before credentials or crop photos are ready.
 
@@ -114,6 +116,7 @@ Before presenting:
 ~~~text
 src/App.jsx              App shell, navigation, dashboard, fields and history
 src/components/          Crop check, reports, water planner, auth and reusable UI
+shared/location.js        Coordinate/address display and weather query helpers
 src/lib/                 Firebase client, API client, image preprocessing and sample data
 src/styles.css           Responsive visual system
 api/                     Vercel health, weather and analysis endpoints

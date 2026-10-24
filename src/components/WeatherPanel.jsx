@@ -2,14 +2,17 @@ import { useState } from 'react';
 import { MapPin, Wind, Droplets, ArrowUpRight, Search, RefreshCw } from 'lucide-react';
 import { WeatherIcon, weatherLabel, Badge, Modal, Notice, Spinner, formatDate } from './ui';
 import { request } from '../lib/api';
+import { weatherQuery } from '../../shared/location';
+import LocationSearchFields from './LocationSearchFields';
 export default function WeatherPanel({ weather, onWeather, onPlan }) {
   const [open, setOpen] = useState(false);
-  const [address, setAddress] = useState('');
+  const [locationInput, setLocationInput] = useState({address:''});
+  const [mode, setMode] = useState('address');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   async function lookup(e) {
     e.preventDefault(); setBusy(true); setError('');
-    try { const result = await request('/api/weather?address=' + encodeURIComponent(address)); onWeather(result); setOpen(false); }
+    try { const result = await request('/api/weather?' + weatherQuery(locationInput)); onWeather(result); setOpen(false); }
     catch (err) { setError(err.message); } finally { setBusy(false); }
   }
   return <><article className="weather-card">
@@ -20,5 +23,5 @@ export default function WeatherPanel({ weather, onWeather, onPlan }) {
     <div className="weather-mini">{weather.days.slice(0,5).map((d,i) => <div key={d.date}><span>{i === 0 ? 'Today' : formatDate(d.date, {weekday:'short'})}</span><WeatherIcon code={d.code} size={20}/><strong>{Math.round(d.high)}°</strong></div>)}</div>
     <button className="weather-footer" onClick={weather.sample ? () => setOpen(true) : onPlan}>{weather.sample ? 'Get weather for your field' : 'Explore your water plan'}<ArrowUpRight size={15}/></button>
   </article>
-  {open && <Modal title="Every field has its own forecast." onClose={() => setOpen(false)}><p className="modal-description">Enter a California address or city. City searches use the city center; the forecast is a model estimate for the surrounding area.</p><form className="form-stack" onSubmit={lookup}><label>Farm address or city<input autoFocus required minLength={2} value={address} onChange={e => setAddress(e.target.value)} placeholder="Manteca, CA"/></label>{error && <Notice tone="error">{error}</Notice>}<button className="button primary" disabled={busy}>{busy ? <Spinner label="Finding your forecast…"/> : <><Search size={17}/>Find local weather</>}</button></form><p className="fine-print">Weather by Open-Meteo. Street addresses are resolved by the U.S. Census Geocoder.</p></Modal>}</>;
+  {open && <Modal title="Every field has its own forecast." onClose={() => setOpen(false)}><p className="modal-description">Enter a California address, city, or coordinates to load a local model forecast.</p><form className="form-stack" onSubmit={lookup}><LocationSearchFields value={locationInput} onChange={setLocationInput} mode={mode} onModeChange={setMode} prefix="weather"/>{error && <Notice tone="error">{error}</Notice>}<button className="button primary" disabled={busy}>{busy ? <Spinner label="Finding your forecast…"/> : <><Search size={17}/>Find local weather</>}</button></form><p className="fine-print">Weather by Open-Meteo. Street addresses are resolved by the U.S. Census Geocoder.</p></Modal>}</>;
 }

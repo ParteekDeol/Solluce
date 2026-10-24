@@ -7,11 +7,19 @@ service cloud.firestore {
     match /users/{uid}/fields/{fieldId} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['id','name','crop','soil','irrigation','stage','acres','address','sample','createdAt'])
+        && request.resource.data.keys().hasOnly(['id','name','crop','soil','irrigation','stage','acres','address','latitude','longitude','sample','createdAt'])
         && request.resource.data.id == fieldId
         && request.resource.data.name is string && request.resource.data.name.size() <= 80
         && request.resource.data.acres is number && request.resource.data.acres > 0 && request.resource.data.acres <= 10000
         && request.resource.data.address is string && request.resource.data.address.size() <= 200
+        && (!request.resource.data.keys().hasAny(['latitude','longitude'])
+          || (request.resource.data.keys().hasAll(['latitude','longitude'])
+            && request.resource.data.latitude is number
+            && request.resource.data.longitude is number
+            && request.resource.data.latitude >= 32 && request.resource.data.latitude <= 42.1
+            && request.resource.data.longitude >= -124.6 && request.resource.data.longitude <= -114))
+        && ((request.resource.data.address.size() >= 2)
+          || request.resource.data.keys().hasAll(['latitude','longitude']))
         && request.resource.data.crop is string && request.resource.data.soil is string
         && request.resource.data.irrigation is string && request.resource.data.stage is string
         && request.resource.data.sample == false;

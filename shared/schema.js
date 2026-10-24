@@ -11,7 +11,12 @@ export const FieldSchema = z.object({
   irrigation: z.enum(IRRIGATION),
   stage: z.enum(STAGES),
   acres: z.number().positive().max(10000),
-  address: z.string().trim().min(2).max(200),
+  address: z.string().trim().max(200),
+  latitude: z.number().min(32).max(42.1).optional(),
+  longitude: z.number().min(-124.6).max(-114).optional(),
+}).refine(field => (field.latitude === undefined) === (field.longitude === undefined)
+  && (field.address.length >= 2 || field.latitude !== undefined), {
+  message: 'Enter a California address or both latitude and longitude.',
 });
 export const LocationSchema = z.object({
   name: z.string().max(250),
