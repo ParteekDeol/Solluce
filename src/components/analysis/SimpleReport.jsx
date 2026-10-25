@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, Check, ChevronDown, Droplets, Leaf, ScanLine, Sh
 import { cropLabel } from '../../../shared/location';
 import { formatDate } from '../ui';
 import { readPreferences } from '../../lib/preferences';
+import ReportInsights from './ReportInsights';
 
 const statusText = { monitor: 'Keep observing', attention: 'Needs a closer look', urgent: 'Get help soon', insufficient_evidence: 'More information needed' };
 
@@ -26,6 +27,7 @@ export default function SimpleReport({ analysis, onBack, onWater, onCheck, onTog
       {report.recommendations.slice(0, 3).map((item, index) => <Action key={index} item={item} index={index} done={done.includes(index)} onToggle={onToggle}/>)}
       {report.recommendations.length > 3 && <details className="simple-details"><summary>Show {report.recommendations.length - 3} more steps<ChevronDown size={18}/></summary>{report.recommendations.slice(3).map((item, i) => <Action key={i + 3} item={item} index={i + 3} done={done.includes(i + 3)} onToggle={onToggle}/>)}</details>}
     </section>
+    <ReportInsights report={report} weather={analysis.weather}/>
     <div className="simple-report-details">
       <details><summary>What we noticed<ChevronDown size={19}/></summary><div><ul>{report.observations.map((item, i) => <li key={i}>{item}</li>)}</ul><p><strong>Photo evidence:</strong> {report.imageNotes}</p></div></details>
       <details><summary>Possible causes and how to check<ChevronDown size={19}/></summary><div>{report.issues.length ? report.issues.map((issue, i) => <article key={i}><h3>{issue.title}</h3><p>{issue.evidence}</p><p><strong>Check in the field:</strong> {issue.verification}</p><p><strong>Another possibility:</strong> {issue.alternatives}</p></article>) : <p>There is not enough evidence to name a cause. Follow the field checks above.</p>}</div></details>

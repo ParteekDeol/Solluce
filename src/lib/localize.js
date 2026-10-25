@@ -72,6 +72,23 @@ Object.assign(es, {
   'Today’s high / low':'Máxima / mínima de hoy',
   'Chance of rain':'Probabilidad de lluvia',
   'Load a forecast to see local weather.':'Carga un pronóstico para ver el clima local.',
+  'Choose a field':'Elige un campo',
+  'Loading forecast for':'Cargando pronóstico para',
+  'Loading weather for the selected field…':'Cargando el clima del campo seleccionado…',
+  'Loading your forecast…':'Cargando tu pronóstico…',
+  'At a glance':'De un vistazo',
+  'Report charts':'Gráficos del informe',
+  'Focus of your next steps':'Enfoque de tus próximos pasos',
+  'Number of recommended actions by topic':'Número de acciones recomendadas por tema',
+  'Recommended actions by topic':'Acciones recomendadas por tema',
+  'Field checks':'Revisiones del campo',
+  'No actions in this category.':'No hay acciones en esta categoría.',
+  'Weather ahead':'El clima que viene',
+  'Forecast high temperature and rainfall':'Máxima pronosticada y lluvia',
+  'Seven-day temperature and rain forecast':'Pronóstico de temperatura y lluvia de siete días',
+  'High':'Máxima',
+  'Example forecast':'Pronóstico de ejemplo',
+  'Open-Meteo forecast':'Pronóstico de Open-Meteo',
 });
 
 const nodes = new WeakMap();

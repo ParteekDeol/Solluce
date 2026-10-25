@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react';
 import { ArrowRight, CloudRain, Droplets, Info, MapPin, Sun, Thermometer, Wind } from 'lucide-react';
 import { waterBudget, irrigationRuntime, EFFICIENCIES } from '../../shared/water';
-import { hasCoordinates, weatherQuery } from '../../shared/location';
+import { hasCoordinates, locationLabel, weatherQuery } from '../../shared/location';
 import { request } from '../lib/api';
 import { formatDate, formatNumber, Notice, Spinner, WeatherIcon, weatherLabel } from './ui';
 import LocationSearchFields from './LocationSearchFields';
 import ForecastExplorer from './ForecastExplorer';
 import { readPreferences } from '../lib/preferences';
 
-export default function SimpleWaterPlan({ weather, field, onWeather }) {
+export default function SimpleWaterPlan({ weather, weatherBusy, field, fields = [], defaultLocation, onSelectField, onWeather }) {
   const spanish = readPreferences().language === 'es';
   const [acres, setAcres] = useState(field.acres);
   const [coefficient, setCoefficient] = useState(.85);
@@ -17,8 +17,9 @@ export default function SimpleWaterPlan({ weather, field, onWeather }) {
   const [view, setView] = useState('plan');
   const [moisture, setMoisture] = useState('unknown');
   const [flow, setFlow] = useState('');
-  const [locationInput, setLocationInput] = useState(hasCoordinates(field) ? {address:'',latitude:field.latitude,longitude:field.longitude} : {address:field.address || weather?.location.name || ''});
-  const [locationMode, setLocationMode] = useState(hasCoordinates(field) ? 'coordinates' : 'address');
+  const locationSource = field?.sample && defaultLocation ? defaultLocation : field;
+  const [locationInput, setLocationInput] = useState(hasCoordinates(locationSource) ? {address:'',latitude:locationSource.latitude,longitude:locationSource.longitude} : {address:locationSource?.address || weather?.location.name || ''});
+  const [locationMode, setLocationMode] = useState(hasCoordinates(locationSource) ? 'coordinates' : 'address');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const budget = useMemo(() => waterBudget(weather?.days, Number(acres), Number(coefficient), Number(efficiency)), [weather, acres, coefficient, efficiency]);
@@ -30,7 +31,7 @@ export default function SimpleWaterPlan({ weather, field, onWeather }) {
   async function loadWeather(event) {
     event.preventDefault(); setBusy(true); setError('');
     const details = event.currentTarget.closest('details');
-    try { onWeather(await request('/api/weather?' + weatherQuery(locationInput))); setActive(0); details?.removeAttribute('open'); }
+    try { onWeather(await request('/api/weather?' + weatherQuery(locationInput)),locationInput); setActive(0); details?.removeAttribute('open'); }
     catch (cause) { setError(cause.message); }
     finally { setBusy(false); }
   }
@@ -46,12 +47,13 @@ export default function SimpleWaterPlan({ weather, field, onWeather }) {
       <button id="water-plan-tab" role="tab" aria-controls="water-plan-panel" aria-selected={view === 'plan'} onClick={() => setView('plan')}><Droplets size={19}/>Water plan</button>
       <button id="water-weather-tab" role="tab" aria-controls="water-weather-panel" aria-selected={view === 'weather'} onClick={() => setView('weather')}><Sun size={19}/>Weather</button>
     </div>
-    {weather?.sample && <p className="simple-sample-note">Showing sample weather. Add your location before using this for your field.</p>}
+    {fields.length>0 && <label className="simple-field-picker">Choose a field<select value={field.id||''} onChange={event=>onSelectField(event.target.value)}>{fields.map(item=><option key={item.id} value={item.id}>{item.name} · {locationLabel(item)}</option>)}</select></label>}
+    {!weatherBusy && weather?.sample && <p className="simple-sample-note">Showing sample weather. Add your location before using this for your field.</p>}
     {view === 'plan' && field?.sample && !weather?.sample && <p className="simple-sample-note">The forecast is live, but the field settings are still an example. Adjust the acreage below.</p>}
     {oldForecast && <p className="simple-sample-note">This forecast is out of date. Load local weather again before planning irrigation.</p>}
-    <div className="simple-water-location"><MapPin size={18}/><span>Forecast for <strong>{weather?.location.name || 'No location selected'}</strong></span></div>
+    <div className="simple-water-location"><MapPin size={18}/><span>{weatherBusy?'Loading forecast for':'Forecast for'} <strong>{weatherBusy?locationLabel(field):weather?.location.name || 'No location selected'}</strong></span></div>
     <details className="simple-details simple-location"><summary><MapPin size={17}/>Change forecast location<ArrowRight size={17}/></summary><form onSubmit={loadWeather}><LocationSearchFields value={locationInput} onChange={setLocationInput} mode={locationMode} onModeChange={setLocationMode} prefix="simple-water"/><button className="button primary" disabled={busy}>{busy ? <Spinner label="Loading forecast…"/> : 'Use this location'}</button>{error && <Notice tone="error">{error}</Notice>}</form></details>
-    {view === 'weather' ? <div id="water-weather-panel" role="tabpanel" aria-labelledby="water-weather-tab" className="simple-weather-tab">
+    {weatherBusy ? <Notice>Loading weather for the selected field…</Notice> : view === 'weather' ? <div id="water-weather-panel" role="tabpanel" aria-labelledby="water-weather-tab" className="simple-weather-tab">
       {weather?.days?.length ? <>
         <section className="simple-weather-current" aria-label="Current conditions">
           <div className="simple-weather-current-main">{Number.isFinite(weatherCode) && <WeatherIcon code={weatherCode} size={48}/>}<div><span>Current forecast</span><strong>{displayNumber(current?.temperature, '°F')}</strong><p>{Number.isFinite(weatherCode) ? weatherLabel(weatherCode) : 'Condition unavailable'}</p></div></div>

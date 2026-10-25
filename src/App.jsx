@@ -15,7 +15,7 @@ import WaterPlan from './components/SimpleWaterPlan';
 import ForecastExplorer from './components/ForecastExplorer';
 import About from './components/About';
 import SimpleOverview from './components/SimpleOverview';
-import { locationLabel, cropLabel } from '../shared/location';
+import { locationLabel, cropLabel, locationKey, weatherQuery } from '../shared/location';
 import { applyPreferences, readPreferences } from './lib/preferences';
 import { localizeInterface } from './lib/localize';
 
@@ -43,6 +43,9 @@ export default function App() {
   const [recordError, setRecordError] = useState('');
   const [analysis, setAnalysis] = useState(null);
   const [weather, setWeather] = useState(sampleWeather);
+  const [weatherBusy, setWeatherBusy] = useState(false);
+  const [selectedFieldId, setSelectedFieldId] = useState(() => { try { return localStorage.getItem('solluce-selected-field') || ''; } catch { return ''; } });
+  const requestedWeather = useRef('');
   const [fieldModal, setFieldModal] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteBusy, setDeleteBusy] = useState(false);
@@ -78,7 +81,7 @@ export default function App() {
     request('/api/health').then(d=>setConfigured(d.analysisConfigured)).catch(()=>setConfigured(null));
     if(!auth)return;
     return onAuthStateChanged(auth, next=>{
-      if(previousUid.current && previousUid.current!==next?.uid){setAnalysis(null);setFields([]);setAnalyses([]);setLocallySaved([]);setWeather(sampleWeather);setInitialField(null);}
+      if(previousUid.current && previousUid.current!==next?.uid){setAnalysis(null);setFields([]);setAnalyses([]);setLocallySaved([]);setWeather(sampleWeather);setInitialField(null);requestedWeather.current='';}
       previousUid.current=next?.uid||null;setUser(next);setAuthLoading(false);
     });
   },[]);
@@ -94,6 +97,31 @@ export default function App() {
   },[user?.uid]);
   useEffect(()=>{if(!toast)return;const t=setTimeout(()=>setToast(''),5000);return()=>clearTimeout(t);},[toast]);
   useEffect(()=>{applyPreferences(preferences);localizeInterface(preferences.language);},[preferences]);
+  const availableFields = user ? fields : analysis && !analysis.sample ? [{...analysis.field,id:'guest-current'}] : [];
+  const activeField = availableFields.find(item=>item.id===selectedFieldId) || availableFields[0] || sampleField;
+  let rememberedWeatherSource = null;
+  try{const saved=JSON.parse(localStorage.getItem('solluce-last-weather')||'null');if(saved?.uid===(user?.uid||null))rememberedWeatherSource=saved.source;}catch{/* Storage may be unavailable. */}
+  function chooseField(id){setSelectedFieldId(id);try{localStorage.setItem('solluce-selected-field',id);}catch{/* Storage may be unavailable. */}}
+  function rememberWeather(result, source){
+    setWeather(result);
+    if(source && (source.address || Number.isFinite(source.latitude))){
+      requestedWeather.current=locationKey(source);
+      try{localStorage.setItem('solluce-last-weather',JSON.stringify({uid:user?.uid||null,source}));}catch{/* Storage may be unavailable. */}
+    }
+  }
+  useEffect(()=>{
+    if(authLoading || (user && recordsLoading))return;
+    let source=activeField.sample?null:activeField;
+    if(!source)source=rememberedWeatherSource;
+    if(!source || (!source.address && !Number.isFinite(source.latitude)))return;
+    const key=locationKey(source);
+    if(requestedWeather.current===key)return;
+    if(requestedWeather.current && requestedWeather.current!==key)setWeather(sampleWeather);
+    requestedWeather.current=key;
+    let cancelled=false,finished=false;setWeatherBusy(true);
+    request('/api/weather?'+weatherQuery(source)).then(result=>{finished=true;if(!cancelled&&requestedWeather.current===key)rememberWeather(result,source);}).catch(()=>{finished=true;if(!cancelled&&requestedWeather.current===key)requestedWeather.current='';}).finally(()=>{if(!cancelled)setWeatherBusy(false);});
+    return()=>{cancelled=true;if(!finished){if(requestedWeather.current===key)requestedWeather.current='';setWeatherBusy(false);}};
+  },[authLoading,recordsLoading,user?.uid,fields,selectedFieldId,analysis?.id]);
   function updatePreference(key,value){setPreferences(current=>({...current,[key]:value}));}
   function go(next){if(page===next){setMobileOpen(false);return;}window.location.hash=next;setPage(next);setMobileOpen(false);}
   function newCheck(field=null){try{sessionStorage.removeItem('solluce-check-draft');}catch{/* Storage may be unavailable. */}setInitialField(field);setCheckKey(k=>k+1);go('check');}
@@ -109,10 +137,10 @@ export default function App() {
   }
   async function completeCheck(record, previews, fieldId){
     const full={...record,photoPreviews:previews};
-    setAnalysis(full);if(record.weather)setWeather(record.weather);setSaveError('');go('report');
+    setAnalysis(full);if(record.weather)rememberWeather(record.weather,record.field);setSaveError('');go('report');
     if(user){
       await persist(full);
-      try{await saveField(user.uid,{...record.field,...(fieldId?{id:fieldId}:{})});}
+      try{const savedField=await saveField(user.uid,{...record.field,...(fieldId?{id:fieldId}:{})});chooseField(savedField.id);}
       catch{setToast('Report created. Field details could not be saved; retry from My fields.');}
     }
   }
@@ -126,11 +154,15 @@ export default function App() {
       catch{setAnalysis({...target,completed:before});setToast('Could not save that change. Please try again.');}
     }
   }
-  function openWater(record=analysis){if(record?.weather)setWeather(record.weather);go('water');}
+  function openWater(record=analysis){
+    const match=fields.find(item=>item.id===record?.field?.id || (item.name===record?.field?.name && locationKey(item)===locationKey(record.field)));
+    if(match)chooseField(match.id);
+    if(record?.weather && (match || (!user && !record.sample) || locationKey(activeField)===locationKey(record.field)))rememberWeather(record.weather,record.field);
+    go('water');
+  }
   async function signOut(){try{await logOut();setAccountOpen(false);setToast('You’re now browsing as a guest.');go('overview');}catch{setToast('Sign-out failed. Please try again.');}}
   async function deleteField(){setDeleteBusy(true);try{await removeField(user.uid,deleteTarget.id);setDeleteTarget(null);setToast('Field removed. Analysis history is preserved.');}catch{setToast('Could not delete this field. Please try again.');}finally{setDeleteBusy(false);}}
   const current = analysis || analyses[0] || (!user ? sampleAnalysis : null);
-  const activeField = current?.field || fields[0] || sampleField;
   const openFields = user ? fields : analysis && !analysis.sample ? [{...analysis.field,id:'guest-field'}] : [sampleField];
   return <div className="app-shell">
     <a className="skip-link" href="#main-content" onClick={e=>{e.preventDefault();mainRef.current?.focus();mainRef.current?.scrollIntoView();}}>Skip to content</a>
@@ -145,10 +177,10 @@ export default function App() {
       <header className="topbar"><div className="topbar-left"><button className="mobile-menu icon-button" aria-label="Open navigation" aria-expanded={mobileOpen} onClick={()=>setMobileOpen(true)}><Menu size={22}/></button><span className="mobile-brand"><Brand compact/></span></div><div className="topbar-right"><button className="icon-button settings-shortcut" aria-label="Settings" onClick={()=>setSettingsOpen(true)}><Settings2 size={19}/></button></div></header>
       <main id="main-content" className="main-content" ref={mainRef} tabIndex={-1}>
         {recordError&&<Notice tone="error">{recordError}</Notice>}
-        {page==='overview'&&<SimpleOverview user={user} fields={openFields} analysis={current} weather={weather} onWeather={setWeather} onCheck={newCheck} onSample={openSample} onFields={()=>go('fields')} onReport={()=>current&&openReport(current)} onWater={()=>go('water')} />}
+        {page==='overview'&&<SimpleOverview user={user} fields={openFields} field={activeField} defaultLocation={rememberedWeatherSource} analysis={current} weather={weather} weatherBusy={weatherBusy} onWeather={rememberWeather} onCheck={newCheck} onSample={openSample} onFields={()=>go('fields')} onReport={()=>current&&openReport(current)} onWater={()=>go('water')} />}
         {page==='check'&&<CropCheck key={checkKey} fields={fields} initialField={initialField} user={user} configured={configured} onComplete={completeCheck} onSample={openSample} onAuth={()=>setAuthOpen(true)}/>}
         {page==='report'&&(analysis?<Report key={analysis.id} analysis={analysis} onBack={()=>go('overview')} onCheck={()=>newCheck(analysis.sample?null:analysis.field)} onWater={()=>openWater(analysis)} onToggle={toggle} user={user} onAuth={()=>setAuthOpen(true)} onSave={()=>persist(analysis)} saved={saved} saving={saving} saveError={saveError}/>:<EmptyState title="Your next insight starts with a photo." action={<button className="button primary" onClick={()=>newCheck()}>Start a crop check<ArrowRight size={16}/></button>}>Complete a crop check, or open a saved analysis from your history.</EmptyState>)}
-        {page==='water'&&<WaterPlan key={activeField.name} weather={weather} field={activeField} onWeather={setWeather}/>}
+        {page==='water'&&<WaterPlan key={`${activeField.id||activeField.name}:${locationKey(activeField)}`} weather={weather} weatherBusy={weatherBusy} field={activeField} fields={availableFields} defaultLocation={rememberedWeatherSource} onSelectField={chooseField} onWeather={rememberWeather}/>}
         {page==='fields'&&<Fields user={user} fields={fields} loading={recordsLoading} onAuth={()=>setAuthOpen(true)} onNew={()=>setFieldModal({})} onEdit={f=>setFieldModal(f)} onDelete={setDeleteTarget} onCheck={newCheck}/>}
         {page==='history'&&<SimpleHistory user={user} analyses={analyses} guestAnalysis={analysis} loading={recordsLoading} onAuth={()=>setAuthOpen(true)} onOpen={openReport} onCheck={()=>newCheck()}/>}
         {(page==='about'||page==='guide')&&<About onCheck={()=>newCheck()} onSample={openSample}/>}

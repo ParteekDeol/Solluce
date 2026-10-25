@@ -120,6 +120,35 @@
 .simple-report-save span{display:flex;gap:8px;align-items:center}
 .simple-report-save p button{border:0;background:none;text-decoration:underline;color:var(--accent);font-weight:700}
 .simple-report-again{display:flex;align-items:center;gap:10px;color:var(--accent);background:none;border:0;padding:14px 0;font-size:15px;font-weight:700}
+.report-insights{margin:28px 0 20px}
+.report-insights>.simple-section-head{justify-content:space-between;margin-bottom:14px}
+.report-insights>.simple-section-head span{font-size:13px;color:var(--simple-muted)}
+.report-insights-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.report-insight-card{min-width:0;padding:23px;background:var(--simple-surface);border:1px solid var(--simple-border);border-radius:13px}
+.report-insight-card h3{font-size:19px;color:var(--simple-text);margin:0 0 4px}
+.report-insight-card>p{font-size:13px;color:var(--simple-muted);line-height:1.45}
+.report-focus-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:20px 0 12px}
+.report-focus-chart button,.report-weather-chart button{display:grid;justify-items:center;gap:5px;min-width:0;padding:7px 2px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--simple-text);cursor:pointer}
+.report-focus-chart button.selected,.report-weather-chart button.selected{background:var(--simple-bg);border-color:var(--accent)}
+.report-focus-track,.report-weather-track{height:83px;width:29px;display:flex;align-items:end;background:var(--simple-bg);border-radius:5px;overflow:hidden;position:relative}
+.report-focus-track>span{width:100%;background:var(--chart-color);border-radius:5px 5px 0 0}
+.report-focus-chart button strong{font-size:17px;color:var(--simple-text)}
+.report-focus-chart button small{font-size:11px;text-align:center;color:var(--simple-muted);line-height:1.2}
+.report-chart-detail{padding:12px 14px;background:var(--simple-bg);border-radius:9px;min-height:65px}
+.report-chart-detail strong{font-size:14px;color:var(--simple-text)}
+.report-chart-detail p{display:flex;align-items:center;flex-wrap:wrap;gap:5px;font-size:13px;line-height:1.4;color:var(--simple-muted);margin:4px 0 0}
+.report-chart-detail svg{color:var(--accent)}
+.report-weather-chart{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;margin:20px 0 4px}
+.report-weather-track{width:25px}
+.report-weather-heat{position:absolute;bottom:0;width:100%;background:#e59b62;border-radius:5px 5px 0 0}
+.report-weather-rain{position:absolute;bottom:0;width:100%;background:#5ba5c2bb;border-radius:5px 5px 0 0}
+.report-weather-chart button strong{font-size:11px;color:var(--simple-muted)}
+.report-chart-legend{display:flex;gap:15px;margin:0 0 12px;font-size:12px;color:var(--simple-muted)}
+.report-chart-legend span{display:flex;align-items:center;gap:5px}
+.report-chart-legend i{width:9px;height:9px;border-radius:2px}
+.report-chart-legend .heat{background:#e59b62}.report-chart-legend .rain{background:#5ba5c2}
+.report-insight-card .report-chart-source{font-size:11px;margin-top:9px}
+@media(max-width:760px){.report-insights-grid{grid-template-columns:1fr}.report-insight-card{padding:20px}.report-focus-track,.report-weather-track{height:75px}}
 
 .simple-water>header{margin-bottom:25px}
 .simple-water>header .simple-kicker{margin-bottom:7px}
@@ -129,6 +158,9 @@
 .simple-water-tabs button{display:flex;align-items:center;justify-content:center;gap:9px;min-height:49px;border:0;border-radius:8px;background:transparent;color:var(--simple-muted);font-size:16px;font-weight:700;cursor:pointer}
 .simple-water-tabs button[aria-selected=true]{background:var(--accent);color:#fff;box-shadow:0 3px 10px #182c1b19}
 .simple-water-tabs button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.simple-field-picker{display:grid;gap:8px;max-width:540px;margin:0 0 17px;color:var(--simple-text);font-size:15px;font-weight:700}
+.simple-field-picker select{width:100%;min-height:49px;padding:10px 13px;border:1px solid var(--simple-border);border-radius:9px;background:var(--simple-surface);color:var(--simple-text);font-size:16px}
+.weather-error{font-size:13px;color:#9b3d2e;padding:10px 0 0}
 .simple-water-location{display:flex;align-items:center;gap:9px;color:var(--simple-muted);font-size:14px;padding:11px 0 2px}
 .simple-water-location svg{color:var(--accent);flex:none}
 .simple-water-location strong{color:var(--simple-text);font-size:15px;margin-left:5px}
