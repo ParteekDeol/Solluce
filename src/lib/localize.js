@@ -84,11 +84,22 @@ Object.assign(es, {
   'Field checks':'Revisiones del campo',
   'No actions in this category.':'No hay acciones en esta categoría.',
   'Weather ahead':'El clima que viene',
+  'Forecast at this crop check':'Pronóstico durante esta revisión',
   'Forecast high temperature and rainfall':'Máxima pronosticada y lluvia',
   'Seven-day temperature and rain forecast':'Pronóstico de temperatura y lluvia de siete días',
   'High':'Máxima',
   'Example forecast':'Pronóstico de ejemplo',
   'Open-Meteo forecast':'Pronóstico de Open-Meteo',
+  'Air temperature at this crop check':'Temperatura del aire durante esta revisión',
+  'No local temperature forecast was included.':'Esta revisión no incluyó un pronóstico local de temperatura.',
+  'Soil moisture':'Humedad del suelo',
+  'What did you find in the root zone?':'¿Qué encontraste en la zona de raíces?',
+  'Not checked yet':'Aún no lo he revisado',
+  'A photo and forecast cannot measure root-zone moisture. Check several spots near affected and healthy plants.':'Una foto y el pronóstico no miden la humedad de las raíces. Revisa varios puntos cerca de plantas afectadas y sanas.',
+  'Dry soil may support a water-stress concern. Check emitter output before changing irrigation.':'El suelo seco puede indicar estrés por falta de agua. Revisa los emisores antes de cambiar el riego.',
+  'Moist soil does not rule out other causes of wilting. Compare affected and healthy plants.':'El suelo húmedo no descarta otras causas de marchitez. Compara plantas afectadas y sanas.',
+  'Saturated soil can stress roots. Pause watering and check drainage before adding water.':'El suelo saturado puede dañar las raíces. Pausa el riego y revisa el drenaje.',
+  'Your observation is saved in this tab only; it was not measured from the photo.':'Tu observación se guarda solo en esta pestaña; no se midió a partir de la foto.',
 });
 
 const nodes = new WeakMap();
