@@ -18,7 +18,7 @@ export const SYSTEM_PROMPT = [
 ].join(' ');
 
 export async function analyzeCrop(input, weather) {
-  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite';
   if (!/^[a-zA-Z0-9._-]+$/.test(model)) throw new ApiError(503, 'The analysis model is not configured correctly.');
   const schema = z.toJSONSchema(ReportSchema);
   delete schema.$schema;
@@ -29,8 +29,8 @@ export async function analyzeCrop(input, weather) {
       ...input.photos.map(p => ({ inlineData: { mimeType: p.mimeType, data: p.data } })),
     ] }],
     generationConfig: {
-      responseMimeType: 'application/json', responseJsonSchema: schema, temperature: 0.25, maxOutputTokens: 10000,
-      ...(/^gemini-[34]/.test(model) ? { thinkingConfig: { thinkingLevel: 'low' } } : {}),
+      responseMimeType: 'application/json', responseJsonSchema: schema, maxOutputTokens: 10000,
+      ...(/^gemini-[34]/.test(model) ? { thinkingConfig: { thinkingLevel: model === 'gemini-3.5-flash-lite' ? 'minimal' : 'low' } } : {}),
     },
   };
   let response;

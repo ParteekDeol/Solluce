@@ -83,11 +83,14 @@ test('sample report obeys the same rendering contract as live reports',()=>{
 });
 test('Gemini request contains images and validated output instructions; returned JSON is validated',async t=>{
   mockEnv(t,'GEMINI_API_KEY','test-key-never-shipped');
+  mockEnv(t,'GEMINI_MODEL','gemini-3.5-flash-lite');
   t.mock.method(globalThis,'fetch',async(url,options)=>{
-    assert.ok(url.startsWith('https://generativelanguage.googleapis.com/v1beta/models/'));
+    assert.ok(url.includes('/models/gemini-3.5-flash-lite:generateContent'));
     const body=JSON.parse(options.body);
     assert.equal(body.contents[0].parts[1].inlineData.data,photo.data);
     assert.equal(body.generationConfig.responseMimeType,'application/json');
+    assert.equal(body.generationConfig.thinkingConfig.thinkingLevel,'minimal');
+    assert.equal('temperature' in body.generationConfig,false);
     assert.ok(body.generationConfig.responseJsonSchema.properties.issues);
     assert.ok(body.systemInstruction.parts[0].text.includes('untrusted'));
     return {ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify(sampleAnalysis.report)}]}}]})};
