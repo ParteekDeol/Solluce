@@ -128,20 +128,25 @@ export default function App() {
   function openSample(){setAnalysis(structuredClone(sampleAnalysis));setSaveError('');go('report');}
   function openReport(record){setAnalysis(record);setSaveError('');go('report');}
   const saved = analysis && (locallySaved.includes(analysis.id)||analyses.some(a=>a.id===analysis.id));
-  async function persist(record) {
-    if(!user||record.sample)return;
+  async function persist(record, notify=true) {
+    if(!user||record.sample)return false;
     setSaving(true);setSaveError('');
-    try {await saveAnalysis(user.uid,record);setLocallySaved(s=>[...s,record.id]);setToast('Your crop check is saved.');}
-    catch {setSaveError('This report is still available in your session, but could not be saved to your account. Check your connection and retry.');}
+    try {await saveAnalysis(user.uid,record);setLocallySaved(s=>[...s,record.id]);if(notify)setToast('Your crop check is saved.');return true;}
+    catch(error) {console.error('Report save failed:',error);setSaveError('This report is still available in your session, but could not be saved to your account. Check your connection and retry.');return false;}
     finally{setSaving(false);}
   }
   async function completeCheck(record, previews, fieldId){
     const full={...record,photoPreviews:previews};
     setAnalysis(full);if(record.weather)rememberWeather(record.weather,record.field);setSaveError('');go('report');
     if(user){
-      await persist(full);
-      try{const savedField=await saveField(user.uid,{...record.field,...(fieldId?{id:fieldId}:{})});chooseField(savedField.id);}
-      catch{setToast('Report created. Field details could not be saved; retry from My fields.');}
+      const reportSaved=await persist(full,false);
+      let fieldSaved=false;
+      try{const savedField=await saveField(user.uid,{...record.field,...(fieldId?{id:fieldId}:{})});chooseField(savedField.id);fieldSaved=true;}
+      catch(error){console.error('Field save failed:', error);}
+      setToast(reportSaved&&fieldSaved?'Your report and field are saved.'
+        :reportSaved?'Report saved, but field details could not be saved. Please try again from My fields.'
+        :fieldSaved?'Field saved, but report history could not be saved. Use Save report to retry.'
+        :'Report created, but your account changes could not be saved. Please try again.');
     }
   }
   async function toggle(index, target=analysis){

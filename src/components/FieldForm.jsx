@@ -35,7 +35,7 @@ export default function FieldModal({ initial, onSave, onClose }) {
     if (!parsed.success) { setError('Check the field details, location and positive acreage.'); return; }
     setBusy(true); setError('');
     try { await onSave({ ...parsed.data, ...(initial?.id ? {id: initial.id} : {}) }); onClose(); }
-    catch { setError('The field could not be saved. Check your connection and Firebase permissions.'); }
+    catch (error) { console.error('Field save failed:', error); setError('The field could not be saved. Please try again or contact the Solluce team.'); }
     finally { setBusy(false); }
   }
   return <Modal wide title={initial ? 'A few field details.' : 'Make room for a new field.'} onClose={onClose}><p className="modal-description">A little context helps Solluce make your next crop check more useful.</p><form className="form-stack" onSubmit={submit}><FieldInputs field={field} setField={setField}/>{error && <Notice tone="error">{error}</Notice>}<button className="button primary" disabled={busy}>{busy ? <Spinner label="Saving field…"/> : <><Plus size={17}/>Save field</>}</button></form></Modal>;

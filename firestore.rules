@@ -7,7 +7,7 @@ service cloud.firestore {
     match /users/{uid}/fields/{fieldId} {
       allow read, delete: if isOwner(uid);
       allow create, update: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['id','name','crop','soil','irrigation','stage','acres','address','latitude','longitude','sample','createdAt'])
+        && request.resource.data.keys().hasOnly(['id','name','crop','customCrop','soil','irrigation','stage','acres','address','latitude','longitude','sample','createdAt'])
         && request.resource.data.id == fieldId
         && request.resource.data.name is string && request.resource.data.name.size() <= 80
         && request.resource.data.acres is number && request.resource.data.acres > 0 && request.resource.data.acres <= 10000
@@ -20,16 +20,25 @@ service cloud.firestore {
             && request.resource.data.longitude >= -124.6 && request.resource.data.longitude <= -114))
         && ((request.resource.data.address.size() >= 2)
           || request.resource.data.keys().hasAll(['latitude','longitude']))
-        && request.resource.data.crop is string && request.resource.data.soil is string
+        && request.resource.data.crop is string
+        && (!request.resource.data.keys().hasAny(['customCrop'])
+          || (request.resource.data.customCrop is string
+            && request.resource.data.customCrop.size() <= 80))
+        && (request.resource.data.crop != 'Other'
+          || (request.resource.data.keys().hasAll(['customCrop'])
+            && request.resource.data.customCrop.size() >= 2))
+        && request.resource.data.soil is string
         && request.resource.data.irrigation is string && request.resource.data.stage is string
         && request.resource.data.sample == false;
     }
     match /users/{uid}/analyses/{analysisId} {
       allow read, delete: if isOwner(uid);
       allow create: if isOwner(uid)
-        && request.resource.data.keys().hasOnly(['id','createdAt','sample','field','quality','concerns','location','photoCount','report','model','weather','weatherWarning','completed'])
+        && request.resource.data.keys().hasOnly(['id','createdAt','sample','field','quality','concerns','language','location','photoCount','report','model','weather','weatherWarning','completed'])
         && request.resource.data.id == analysisId
         && request.resource.data.sample == false
+        && (!request.resource.data.keys().hasAny(['language'])
+          || request.resource.data.language in ['en', 'es'])
         && request.resource.data.report is map
         && request.resource.data.field is map
         && request.resource.data.completed is list

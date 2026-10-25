@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { fieldDocument } from '../../shared/fieldStorage';
 
 const config = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -30,7 +31,7 @@ export function subscribeRecords(uid, type, onData, onError) {
 }
 export async function saveField(uid, field) {
   const id = field.id && !field.id.startsWith('sample') ? field.id : crypto.randomUUID();
-  const clean = { ...field, id, sample: false, createdAt: field.createdAt || new Date().toISOString() };
+  const clean = fieldDocument(field, id);
   await setDoc(doc(db, 'users', uid, 'fields', id), clean);
   return clean;
 }

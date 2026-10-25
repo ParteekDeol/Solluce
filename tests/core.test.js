@@ -6,6 +6,7 @@ import { sampleAnalysis, sampleField } from '../src/lib/demo.js';
 import { analyzeCrop } from '../server/analyze.js';
 import { geocode, coordinatesLocation, forecast } from '../server/weather.js';
 import { cropLabel, locationLabel, weatherQuery } from '../shared/location.js';
+import { fieldDocument } from '../shared/fieldStorage.js';
 import analyzeHandler from '../api/analyze.js';
 import healthHandler from '../api/health.js';
 
@@ -65,6 +66,15 @@ test('Other crop requires a specific name and preserves it for the report',()=>{
   assert.equal(AnalyzeSchema.safeParse({...validInput,field}).success,true);
   assert.equal(cropLabel(field),'Bell peppers');
   assert.equal(AnalyzeSchema.safeParse({...validInput,field:{...field,customCrop:''}}).success,false);
+});
+test('saved field payload omits optional values and preserves custom crops',()=>{
+  const standard = fieldDocument({...sampleField,customCrop:'',latitude:undefined},'north','2026-10-24');
+  assert.equal(standard.id,'north');
+  assert.equal(Object.hasOwn(standard,'customCrop'),false);
+  assert.equal(Object.hasOwn(standard,'latitude'),false);
+  assert.equal(standard.sample,false);
+  const other = fieldDocument({...sampleField,crop:'Other',customCrop:'Bell peppers'},'south','2026-10-24');
+  assert.equal(other.customCrop,'Bell peppers');
 });
 test('coordinate-only fields validate and produce a direct weather query',()=>{
   const coordinateField={...sampleField,address:'',latitude:37.7974,longitude:-121.216};
