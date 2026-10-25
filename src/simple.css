@@ -123,22 +123,6 @@
 .report-insights{margin:28px 0 20px}
 .report-insights>.simple-section-head{justify-content:space-between;margin-bottom:14px}
 .report-insights>.simple-section-head span{font-size:13px;color:var(--simple-muted)}
-.report-conditions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.report-conditions>div{display:flex;align-items:flex-start;gap:14px;min-width:0;border-radius:13px;padding:21px 22px}
-.report-conditions>div>svg{flex:none;margin-top:3px}
-.report-conditions>div>div{min-width:0;flex:1}
-.report-condition-temperature{background:#f8ebdc;color:#8b512f}
-.report-condition-moisture{background:#e6f0f1;color:#356d83}
-.report-conditions span{display:block;font-size:14px;font-weight:750}
-.report-condition-temperature strong{display:block;font-size:37px;line-height:1.15;margin:7px 0;color:#704023}
-.report-conditions p{font-size:13px;line-height:1.5;margin-top:7px;color:inherit}
-.report-condition-moisture label{display:grid;gap:7px;font-size:13px;font-weight:700;margin-top:9px;color:inherit}
-.report-condition-moisture select{width:100%;min-height:40px;border:1px solid #a7c6cd;border-radius:8px;background:#fff;color:#284b58;padding:8px 10px;font-size:15px}
-.report-condition-moisture small{display:block;font-size:11px;line-height:1.4;margin-top:9px;opacity:.85}
-:root[data-mode=dark] .report-condition-temperature{background:#423529;color:#f2d3b5}
-:root[data-mode=dark] .report-condition-moisture{background:#263e44;color:#cdeaf1}
-:root[data-mode=dark] .report-conditions :is(span,strong,p,label,small){color:inherit!important}
-:root[data-mode=dark] .report-condition-moisture select{background:#173039;color:#eaf7f5;border-color:#5c8890}
 .report-insights-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 .report-insight-card{min-width:0;padding:23px;background:var(--simple-surface);border:1px solid var(--simple-border);border-radius:13px}
 .report-insight-card h3{font-size:19px;color:var(--simple-text);margin:0 0 4px}
@@ -164,7 +148,7 @@
 .report-chart-legend i{width:9px;height:9px;border-radius:2px}
 .report-chart-legend .heat{background:#e59b62}.report-chart-legend .rain{background:#5ba5c2}
 .report-insight-card .report-chart-source{font-size:11px;margin-top:9px}
-@media(max-width:760px){.report-conditions,.report-insights-grid{grid-template-columns:1fr}.report-conditions>div{padding:18px}.report-insight-card{padding:20px}.report-focus-track,.report-weather-track{height:75px}}
+@media(max-width:760px){.report-insights-grid{grid-template-columns:1fr}.report-insight-card{padding:20px}.report-focus-track,.report-weather-track{height:75px}}
 
 .simple-water>header{margin-bottom:25px}
 .simple-water>header .simple-kicker{margin-bottom:7px}
