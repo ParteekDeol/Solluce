@@ -22,7 +22,7 @@ The app works without credentials as a **clearly labeled sample experience**. Gu
 
 1. Create a key in [Google AI Studio](https://aistudio.google.com/apikey).
 2. Set **GEMINI_API_KEY** in .env locally and in Vercel’s server environment variables.
-3. Set **GEMINI_MODEL** to a multimodal model available to your account. The default is **gemini-3.5-flash**; this is configurable without code changes.
+3. Set **GEMINI_MODEL** to a multimodal model available to your account. The default is **gemini-3.8-flash**; this is configurable without code changes.
 4. Restart the local server or redeploy Vercel after changing environment variables.
 
 **Never name this key VITE_GEMINI_API_KEY.** Variables prefixed with VITE_ are public browser configuration. The .env file is ignored by Git.

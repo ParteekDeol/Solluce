@@ -18,7 +18,7 @@ export const SYSTEM_PROMPT = [
 ].join(' ');
 
 export async function analyzeCrop(input, weather) {
-  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
   if (!/^[a-zA-Z0-9._-]+$/.test(model)) throw new ApiError(503, 'The analysis model is not configured correctly.');
   const schema = z.toJSONSchema(ReportSchema);
   delete schema.$schema;
